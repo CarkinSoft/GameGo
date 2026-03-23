@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="Trying to fix issue with express saying its missing pt3&#10;This time i have changed the import statement">
+    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="Okay so actually turns out the build command was wrong, which is really weird because its the exact same one I used for another very similar project I did but this way makes a lot more sense to be honest.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/index.mjs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -70,10 +69,10 @@
 }]]></component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1774419201711" />
-    <option name="spentUsd" value="0.071276344" />
+    <option name="spentUsd" value="0.10469769" />
   </component>
   <component name="RecapUselessUpdatesCounter">
-    <option name="suspendCountdown" value="3" />
+    <option name="suspendCountdown" value="2" />
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -93,7 +92,7 @@
       <workItem from="1774297908228" duration="40000" />
       <workItem from="1774298109134" duration="2537000" />
       <workItem from="1774301644833" duration="48000" />
-      <workItem from="1774301839824" duration="1676000" />
+      <workItem from="1774301839824" duration="2455000" />
     </task>
     <task id="LOCAL-00001" summary="home page update">
       <option name="closed" value="true" />
@@ -151,7 +150,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774302906273</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Okay so actually turns out the build command was wrong, which is really weird because its the exact same one I used for another very similar project I did but this way makes a lot more sense to be honest.">
+      <option name="closed" value="true" />
+      <created>1774303714686</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1774303714686</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -165,6 +172,7 @@
     <MESSAGE value="Deleting gitignore. It's unnecessary at this time" />
     <MESSAGE value="Trying to fix issue with express saying its missing pt2" />
     <MESSAGE value="Trying to fix issue with express saying its missing pt3&#10;This time i have changed the import statement" />
-    <option name="LAST_COMMIT_MESSAGE" value="Trying to fix issue with express saying its missing pt3&#10;This time i have changed the import statement" />
+    <MESSAGE value="Okay so actually turns out the build command was wrong, which is really weird because its the exact same one I used for another very similar project I did but this way makes a lot more sense to be honest." />
+    <option name="LAST_COMMIT_MESSAGE" value="Okay so actually turns out the build command was wrong, which is really weird because its the exact same one I used for another very similar project I did but this way makes a lot more sense to be honest." />
   </component>
 </project>
