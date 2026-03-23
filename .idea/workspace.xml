@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="Okay so actually turns out the build command was wrong, which is really weird because its the exact same one I used for another very similar project I did but this way makes a lot more sense to be honest.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="banging my head on a table rn">
+      <change beforePath="$PROJECT_DIR$/public/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/home.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/home.ejs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +92,7 @@
       <workItem from="1774297908228" duration="40000" />
       <workItem from="1774298109134" duration="2537000" />
       <workItem from="1774301644833" duration="48000" />
-      <workItem from="1774301839824" duration="2455000" />
+      <workItem from="1774301839824" duration="2760000" />
     </task>
     <task id="LOCAL-00001" summary="home page update">
       <option name="closed" value="true" />
@@ -158,7 +158,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774303714686</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="banging my head on a table rn">
+      <option name="closed" value="true" />
+      <created>1774304329024</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1774304329024</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -173,6 +181,7 @@
     <MESSAGE value="Trying to fix issue with express saying its missing pt2" />
     <MESSAGE value="Trying to fix issue with express saying its missing pt3&#10;This time i have changed the import statement" />
     <MESSAGE value="Okay so actually turns out the build command was wrong, which is really weird because its the exact same one I used for another very similar project I did but this way makes a lot more sense to be honest." />
-    <option name="LAST_COMMIT_MESSAGE" value="Okay so actually turns out the build command was wrong, which is really weird because its the exact same one I used for another very similar project I did but this way makes a lot more sense to be honest." />
+    <MESSAGE value="banging my head on a table rn" />
+    <option name="LAST_COMMIT_MESSAGE" value="banging my head on a table rn" />
   </component>
 </project>
