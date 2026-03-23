@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="fixing package issues with node express" />
+    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="Deleting gitignore. It's unnecessary at this time" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,12 +23,12 @@
     &quot;assignee&quot;: &quot;CarkinSoft&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/CarkinSoft/GameGo.git",
-    "accountId": "255c6fc2-3129-46e9-8922-d6d460fd198f"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/CarkinSoft/GameGo.git&quot;,
+    &quot;accountId&quot;: &quot;255c6fc2-3129-46e9-8922-d6d460fd198f&quot;
   }
-}]]></component>
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -88,6 +88,7 @@
       <workItem from="1774297908228" duration="40000" />
       <workItem from="1774298109134" duration="2537000" />
       <workItem from="1774301644833" duration="48000" />
+      <workItem from="1774301839824" duration="416000" />
     </task>
     <task id="LOCAL-00001" summary="home page update">
       <option name="closed" value="true" />
@@ -121,7 +122,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774301671208</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Deleting gitignore. It's unnecessary at this time">
+      <option name="closed" value="true" />
+      <created>1774301903052</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1774301903052</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,6 +141,7 @@
     <MESSAGE value="oops forgot to add my name at the bottom and the nav buttons for asteroid and comet" />
     <MESSAGE value="Fortnite ent un Cola, Yippeee" />
     <MESSAGE value="fixing package issues with node express" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing package issues with node express" />
+    <MESSAGE value="Deleting gitignore. It's unnecessary at this time" />
+    <option name="LAST_COMMIT_MESSAGE" value="Deleting gitignore. It's unnecessary at this time" />
   </component>
 </project>
