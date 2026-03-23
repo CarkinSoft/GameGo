@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="Deleting gitignore. It's unnecessary at this time" />
+    <list default="true" id="2eadfc03-0c12-4db3-8a05-e77290be9b88" name="Changes" comment="Trying to fix issue with express saying its missing pt2" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -88,7 +88,7 @@
       <workItem from="1774297908228" duration="40000" />
       <workItem from="1774298109134" duration="2537000" />
       <workItem from="1774301644833" duration="48000" />
-      <workItem from="1774301839824" duration="416000" />
+      <workItem from="1774301839824" duration="757000" />
     </task>
     <task id="LOCAL-00001" summary="home page update">
       <option name="closed" value="true" />
@@ -130,7 +130,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774301903052</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Trying to fix issue with express saying its missing pt2">
+      <option name="closed" value="true" />
+      <created>1774302483219</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1774302483219</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -142,6 +150,7 @@
     <MESSAGE value="Fortnite ent un Cola, Yippeee" />
     <MESSAGE value="fixing package issues with node express" />
     <MESSAGE value="Deleting gitignore. It's unnecessary at this time" />
-    <option name="LAST_COMMIT_MESSAGE" value="Deleting gitignore. It's unnecessary at this time" />
+    <MESSAGE value="Trying to fix issue with express saying its missing pt2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Trying to fix issue with express saying its missing pt2" />
   </component>
 </project>
