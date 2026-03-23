@@ -1,4 +1,4 @@
-import express from 'node_modules/express';
+import express from 'express';
 
 const app = express();
 app.set("view engine", "ejs");
