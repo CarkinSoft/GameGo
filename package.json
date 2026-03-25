@@ -12,8 +12,11 @@
   "type": "module",
   "dependencies": {
     "axios": "^1.13.6",
+    "bootstrap": "^5.3.8",
     "ejs": "^5.0.1",
     "express": "^5.2.1",
+    "fetch": "^1.1.0",
+    "mysql2": "^3.20.0",
     "node": "^25.8.1",
     "node-fetch": "^3.3.2"
   }
