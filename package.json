@@ -17,7 +17,16 @@
     "express": "^5.2.1",
     "fetch": "^1.1.0",
     "mysql2": "^3.20.0",
-    "node": "^25.8.1",
+    "node": "^25.8.2",
     "node-fetch": "^3.3.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarkinSoft/GameGo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CarkinSoft/GameGo/issues"
+  },
+  "homepage": "https://github.com/CarkinSoft/GameGo#readme"
 }
