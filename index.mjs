@@ -139,7 +139,7 @@ app.get('/home', (req, res) => {
         return res.redirect('/');
     }
 
-    res.render('home.ejs');
+    res.render('home.ejs', { username: req.session.username });
 });
 
 // app.get('/searchByLikes', async (req, res) => {
