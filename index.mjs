@@ -18,9 +18,21 @@ const pool = mysql.createPool({
 });
 
 
-//routes
+// Landing page for the site
 app.get('/', (req, res) => {
-   res.render('home.ejs', { });
+    res.render('landing.ejs');
+});
+
+// Sign up page (allows users to create an account)
+app.get('/signup', (req, res) => {
+    res.render('signup.ejs');
+});
+
+
+
+// Home page (the actual app page after login)
+app.get('/home', (req, res) => {
+    res.render('home.ejs');
 });
 
 // app.get('/searchByLikes', async (req, res) => {
@@ -45,15 +57,25 @@ app.get('/', (req, res) => {
 // });
 
 
-app.get("/dbTest", async(req, res) => {
-   try {
-        const [rows] = await pool.query("SELECT CURDATE()");
-        res.send(rows);
+app.get("/dbTest", async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT id, username, password, is_admin, created_at FROM users"
+        );
+
+        res.send({
+            message: "Users table working correctly",
+            totalUsers: rows.length,
+            users: rows
+        });
+
     } catch (err) {
         console.error("Database error:", err);
         res.status(500).send("Database error!");
     }
 });//dbTest
+
+
 
 app.listen(3000, ()=>{
     console.log("Express server running")
