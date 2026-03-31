@@ -15,12 +15,12 @@
     "bootstrap": "^5.3.8",
     "ejs": "^5.0.1",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "fetch": "^1.1.0",
     "mysql2": "^3.20.0",
     "node": "^25.8.2",
     "node-fetch": "^3.3.2"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/CarkinSoft/GameGo.git"

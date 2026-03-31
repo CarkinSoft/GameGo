@@ -7,7 +7,9 @@
     <div class="container mt-5">
         <h1>Create Account</h1>
 
-        <form action="/signup" method="POST" class="mt-4">
+        <p id="formMessage" class="hidden"></p>
+
+        <form id="signupForm" action="/signup" method="POST" class="mt-4">
             <div class="mb-3">
                 <label for="username">Username:</label>
                 <input type="text" name="username" id="username" class="form-control" required>
@@ -24,5 +26,6 @@
     </div>
 
     <%- include("partials/footer.ejs") %>
+    <script src="/js/signup.js"></script>
 </body>
 </html>
