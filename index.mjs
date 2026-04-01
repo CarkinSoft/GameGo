@@ -297,7 +297,29 @@ app.post('/saveGame', async (req, res) => {
     }
 });
 
+app.get('/library', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
 
+    let userId = req.session.userId;
+
+    try {
+        let sql = `SELECT id, rawg_game_id, title, cover_image, genres, status, is_favorite, created_at
+                   FROM saved_games
+                   WHERE user_id = ?
+                   ORDER BY created_at DESC`;
+        let sqlParams = [userId];
+
+        const [rows] = await pool.query(sql, sqlParams);
+
+        res.render('library.ejs', { games: rows });
+
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).send("Database error!");
+    }
+});
 
 app.listen(3000, ()=>{
     console.log("Express server running")

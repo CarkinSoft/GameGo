@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<body>
+    <header>
+        <h1>My Library</h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <% if (games.length === 0) { %>
+            <p>You have no saved games yet.</p>
+        <% } %>
+
+        <% for (let game of games) { %>
+            <section class="card mb-3 p-3">
+                <h2><%= game.title %></h2>
+
+                <% if (game.cover_image) { %>
+                    <img 
+                        src="<%= game.cover_image %>" 
+                        alt="<%= game.title %>" 
+                        style="max-width: 250px;"
+                    >
+                <% } %>
+
+                <p><strong>Genres:</strong> <%= game.genres || "N/A" %></p>
+                <p><strong>Status:</strong> <%= game.status %></p>
+                <p><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
+                <p><strong>RAWG ID:</strong> <%= game.rawg_game_id %></p>
+
+                <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="btn btn-primary">
+                    View Game Page
+                </a>
+            </section>
+        <% } %>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>
