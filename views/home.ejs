@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <%- include("partials/head.ejs") %>
+    <%- include("partials/head.ejs") %>
 </head>
-
 <body>
-    <h1> GameGo </h1>
-    <%- include("partials/nav.ejs") %>
+    <header>
+        <h1>GameGo Home</h1>
+        <h2>Welcome, <%= username %>!</h2>
+    </header>
 
-    <div class="container my-page">
-        <div class="card page-card">
-            <h2>Message of the Day: Sup Gamers! Keep on Gaming 🙏💯❤️</h2>
-            <img src="<%= 'https://dukeofdefensegame.com/wp-content/uploads/2021/10/portrait-ecstatic-gamer-guy-headphones-screaming-pc-games-ss-FEATURE.jpg' %>" alt="Cool Gamer Bro" class="img-fluid">
-        </div>
-    </div>
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
 
-    <%- include("partials/footer.ejs") %>
+    <main class="container my-page">
+        <section class="card page-card">
+            <h3>Message of the Day: Sup Gamers! Keep on Gaming 🙏💯❤️</h3>
+            <img 
+                src="https://dukeofdefensegame.com/wp-content/uploads/2021/10/portrait-ecstatic-gamer-guy-headphones-screaming-pc-games-ss-FEATURE.jpg" 
+                alt="Cool Gamer Bro"
+                class="img-fluid"
+            >
+        </section>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
 </body>
-
 </html>
