@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<script src="/js/saveGame.js" defer=""></script>
+<body>
+    <header>
+        <h1><%= game.name %></h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <% if (game.background_image) { %>
+            <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 300px;">
+        <% } %>
+
+        <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+        <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+
+        <p>
+            <strong>Genres:</strong>
+            <% if (game.genres && game.genres.length > 0) { %>
+                <%= game.genres.map(g => g.name).join(", ") %>
+            <% } else { %>
+                N/A
+            <% } %>
+        </p>
+
+        <p id="formMessage" class="hidden"></p>
+
+        <form id="saveGameForm" action="/saveGame" method="POST" class="mt-4">
+            <input type="hidden" name="rawg_game_id" value="<%= game.id %>">
+            <input type="hidden" name="title" value="<%= game.name %>">
+            <input type="hidden" name="cover_image" value="<%= game.background_image %>">
+            <input type="hidden" name="genres" value="<%= game.genres ? game.genres.map(g => g.name).join(', ') : '' %>">
+
+            <div class="mb-3">
+                <label for="status">Status:</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="Want to Play">Want to Play</option>
+                    <option value="Playing">Playing</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Dropped">Dropped</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="is_favorite">Favorite:</label>
+                <input type="checkbox" name="is_favorite" id="is_favorite" value="1">
+            </div>
+
+            <button type="submit" class="btn btn-success">Save Game</button>
+        </form>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>
