@@ -7,17 +7,17 @@
     <div class="container mt-5">
         <h1>Create Account</h1>
 
-        <p id="formMessage" class="hidden"></p>
+        <div id="feedbackDiv" class="mb-2"></div>
 
         <form id="signupForm" action="/signup" method="POST" class="mt-4">
             <div class="mb-3">
                 <label for="username">Username:</label>
-                <input type="text" name="username" id="username" class="form-control" required>
+                <input type="text" name="username" id="username" class="form-control">
             </div>
 
             <div class="mb-3">
                 <label for="password">Password:</label>
-                <input type="password" name="password" id="password" class="form-control" required>
+                <input type="password" name="password" id="password" class="form-control">
             </div>
 
             <button type="submit" class="btn btn-success">Create Account</button>

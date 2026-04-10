@@ -1,38 +1,53 @@
-const signupForm = document.getElementById("signupForm");
-const messageBox = document.getElementById("formMessage");
+document.querySelector("#signupForm").addEventListener("submit", signupUser);
 
-signupForm.addEventListener("submit", async function(event) {
+let feedbackDiv = document.querySelector("#feedbackDiv");
+feedbackDiv.style.display = "none";
+
+async function signupUser(event) {
     event.preventDefault();
 
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
+    let username = document.querySelector("input[name=username]").value;
+    let password = document.querySelector("input[name=password]").value;
+
+    if (username == "") {
+        feedbackDiv.style.display = "block";
+        feedbackDiv.textContent = "Error: username cannot be blank";
+        feedbackDiv.style.color = "red";
+        return;
+    }
+
+    if (password == "") {
+        feedbackDiv.style.display = "block";
+        feedbackDiv.textContent = "Error: password cannot be blank";
+        feedbackDiv.style.color = "red";
+        return;
+    }
+
+    let formData = new URLSearchParams();
+    formData.append("username", username);
+    formData.append("password", password);
 
     let response = await fetch("/signup", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: JSON.stringify({
-            username: username,
-            password: password
-        })
+        body: formData
     });
 
     let data = await response.json();
 
-    messageBox.textContent = data.message;
-    messageBox.classList.remove("hidden", "success-message", "error-message");
+    feedbackDiv.style.display = "block";
 
-    if (data.success) {
-        messageBox.classList.add("success-message");
-        signupForm.reset();
+    if (data.error) {
+        feedbackDiv.textContent = data.error;
+        feedbackDiv.style.color = "red";
     } else {
-        messageBox.classList.add("error-message");
-    }
+        feedbackDiv.textContent = data.success;
+        feedbackDiv.style.color = "green";
 
-    setTimeout(() => {
-        messageBox.textContent = "";
-        messageBox.classList.add("hidden");
-        messageBox.classList.remove("success-message", "error-message");
-    }, 4000);
-});
+        setTimeout(function() {
+            window.location.href = "/";
+        }, 1500);
+    }
+}
