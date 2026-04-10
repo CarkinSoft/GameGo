@@ -3,7 +3,6 @@
 <head>
     <%- include("partials/head.ejs") %>
 </head>
-<script src="/js/saveGame.js" defer=""></script>
 <body>
     <header>
         <h1><%= game.name %></h1>
@@ -30,7 +29,7 @@
             <% } %>
         </p>
 
-        <p id="formMessage" class="hidden"></p>
+        <div id="feedbackDiv" class="mb-2"></div>
 
         <form id="saveGameForm" action="/saveGame" method="POST" class="mt-4">
             <input type="hidden" name="rawg_game_id" value="<%= game.id %>">
@@ -41,6 +40,7 @@
             <div class="mb-3">
                 <label for="status">Status:</label>
                 <select name="status" id="status" class="form-select">
+                    <option value="">Select One</option>
                     <option value="Want to Play">Want to Play</option>
                     <option value="Playing">Playing</option>
                     <option value="Completed">Completed</option>
@@ -60,5 +60,7 @@
     <footer>
         <%- include("partials/footer.ejs") %>
     </footer>
+
+    <script src="/js/saveGame.js"></script>
 </body>
 </html>

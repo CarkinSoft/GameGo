@@ -1,45 +1,51 @@
-const saveGameForm = document.getElementById("saveGameForm");
-const messageBox = document.getElementById("formMessage");
+document.querySelector("#saveGameForm").addEventListener("submit", saveGame);
 
-saveGameForm.addEventListener("submit", async function(event) {
+let feedbackDiv = document.querySelector("#feedbackDiv");
+feedbackDiv.style.display = "none";
+
+async function saveGame(event) {
     event.preventDefault();
 
-    let rawgGameId = document.querySelector('input[name="rawg_game_id"]').value;
-    let title = document.querySelector('input[name="title"]').value;
-    let coverImage = document.querySelector('input[name="cover_image"]').value;
-    let genres = document.querySelector('input[name="genres"]').value;
-    let status = document.getElementById("status").value;
-    let isFavorite = document.getElementById("is_favorite").checked ? 1 : 0;
+    let rawgGameId = document.querySelector("input[name=rawg_game_id]").value;
+    let title = document.querySelector("input[name=title]").value;
+    let coverImage = document.querySelector("input[name=cover_image]").value;
+    let genres = document.querySelector("input[name=genres]").value;
+    let status = document.querySelector("select[name=status]").value;
+    let isFavorite = document.querySelector("input[name=is_favorite]").checked ? 1 : 0;
+
+    if (status == "") {
+        feedbackDiv.style.display = "block";
+        feedbackDiv.textContent = "Error: please select a status";
+        feedbackDiv.style.color = "red";
+        return;
+    }
+
+    let formData = new URLSearchParams();
+    formData.append("rawg_game_id", rawgGameId);
+    formData.append("title", title);
+    formData.append("cover_image", coverImage);
+    formData.append("genres", genres);
+    formData.append("status", status);
+    formData.append("is_favorite", isFavorite);
 
     let response = await fetch("/saveGame", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: JSON.stringify({
-            rawg_game_id: rawgGameId,
-            title: title,
-            cover_image: coverImage,
-            genres: genres,
-            status: status,
-            is_favorite: isFavorite
-        })
+        body: formData
     });
 
     let data = await response.json();
 
-    messageBox.textContent = data.message;
-    messageBox.classList.remove("hidden", "success-message", "error-message");
+    feedbackDiv.style.display = "block";
 
-    if (data.success) {
-        messageBox.classList.add("success-message");
-    } else {
-        messageBox.classList.add("error-message");
+    if (data.error) {
+        feedbackDiv.textContent = data.error;
+        feedbackDiv.style.color = "red";
     }
-
-    setTimeout(() => {
-        messageBox.textContent = "";
-        messageBox.classList.add("hidden");
-        messageBox.classList.remove("success-message", "error-message");
-    }, 4000);
-});
+    else {
+        feedbackDiv.textContent = data.success;
+        feedbackDiv.style.color = "green";
+    }
+}

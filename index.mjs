@@ -1,22 +1,20 @@
 import express from 'express';
 import mysql from 'mysql2/promise';
 const session = (await import('express-session')).default;
+
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-//for Express to get values using the POST method
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-//for session usage
 app.use(session({
     secret: "superSecretGameGoKey",
     resave: false,
     saveUninitialized: false
 }));
 
-//setting up database connection pool, replace values in red
 const pool = mysql.createPool({
     host: "k2pdcy98kpcsweia.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
     user: "gmhoccg2uue6ds29",
@@ -28,67 +26,69 @@ const pool = mysql.createPool({
 
 const RAWG_API_KEY = "ae5a2588f0c9456a914d874aeee6c546";
 
-
-// Landing page for the site (allows people to login or create an account)
+// Landing page
 app.get('/', (req, res) => {
     res.render('landing.ejs');
 });
-
 
 // Sign up page
 app.get('/signup', (req, res) => {
     res.render('signup.ejs');
 });
 
-// Sign up page logic (allows users to create an account)
+// Sign up logic
 app.post('/signup', async (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
 
     try {
-        // First checks to see if a username already exists in the database
+        if (username == "") {
+            return res.json({ error: "Error: username cannot be blank" });
+        }
+
+        if (password == "") {
+            return res.json({ error: "Error: password cannot be blank" });
+        }
+
         let sql = `SELECT username
-            FROM users
-            WHERE username = ?`;
+                   FROM users
+                   WHERE username = ?`;
         let sqlParams = [username];
 
         const [rows] = await pool.query(sql, sqlParams);
 
-        // If the query returns anything then the username already exists and the account can't be created
         if (rows.length > 0) {
-            return res.json({
-                success: false,
-                message: "Username already exists."
-            });
+            return res.json({ error: "Error: username already exists" });
         }
 
         sql = `INSERT INTO users (username, password, is_admin)
-            VALUES (?, ?, ?)`;
+               VALUES (?, ?, ?)`;
         sqlParams = [username, password, 0];
 
         await pool.query(sql, sqlParams);
 
-        res.json({
-            success: true,
-            message: "Account created successfully! You can now log in."
-        });
+        res.json({ success: "Account created successfully!" });
     }
     catch (err) {
         console.error("Database error:", err);
-        res.status(500).json({
-            success: false,
-            message: "Database error!"
-        });
+        res.json({ error: "Error: database error" });
     }
 });
 
-// Collects the user info and checks to make sure that the user exists before creating a session and logging them in
+// Login logic
 app.post('/login', async (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
 
     try {
-        // Checks for the matching user (verifies both password and username match)
+        if (username == "") {
+            return res.json({ error: "Error: username cannot be blank" });
+        }
+
+        if (password == "") {
+            return res.json({ error: "Error: password cannot be blank" });
+        }
+
         let sql = `SELECT id, username, is_admin
                    FROM users
                    WHERE username = ?
@@ -97,33 +97,23 @@ app.post('/login', async (req, res) => {
 
         const [rows] = await pool.query(sql, sqlParams);
 
-        //If nothing gets returned, then the entered info doesn't belong to a user
         if (rows.length == 0) {
-            return res.json({
-                success: false,
-                message: "Invalid username or password."
-            });
+            return res.json({ error: "Error: invalid username or password" });
         }
 
-        // If a matching user is found, creates the session values
         req.session.userId = rows[0].id;
         req.session.username = rows[0].username;
         req.session.isAdmin = rows[0].is_admin;
 
-        res.json({
-            success: true,
-            message: "Login successful!"
-        });
-    } catch (err) {
+        res.json({ success: "Login successful!" });
+    }
+    catch (err) {
         console.error("Database error:", err);
-        res.status(500).json({
-            success: false,
-            message: "Database error!"
-        });
+        res.json({ error: "Error: database error" });
     }
 });
 
-// Route for logging a user out (clears the session and returns them to the landing page)
+// Logout
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -135,7 +125,7 @@ app.get('/logout', (req, res) => {
     });
 });
 
-// Home page (the actual app page after login)
+// Home page
 app.get('/home', (req, res) => {
     if (!req.session.userId) {
         return res.redirect('/');
@@ -144,29 +134,8 @@ app.get('/home', (req, res) => {
     res.render('home.ejs', { username: req.session.username });
 });
 
-// app.get('/searchByLikes', async (req, res) => {
-//     let startNum = req.query.startNum;
-//     let endNum = req.query.endNum;
-
-//     try {
-//         let sql = `SELECT quote, firstName, lastName, likes
-//             FROM quotes
-//             NATURAL JOIN authors
-//             WHERE likes BETWEEN ? AND ?
-//             ORDER BY likes`;
-//         let sqlParams = [startNum, endNum];;
-
-//         const [rows] = await pool.query(sql, sqlParams);
-//         res.render("quotesLikes.ejs", {rows});
-//     } catch (err) {
-//         console.error("Database error:", err);
-//         res.status(500).send("Database error!");
-//     }
-
-// });
-
-
-app.get("/dbTest", async (req, res) => {
+// Database test
+app.get('/dbTest', async (req, res) => {
     try {
         const [rows] = await pool.query(
             "SELECT id, username, password, is_admin, created_at FROM users"
@@ -182,11 +151,11 @@ app.get("/dbTest", async (req, res) => {
         console.error("Database error:", err);
         res.status(500).send("Database error!");
     }
-});//dbTest
+});
 
-// search for games
+// Search for games
 app.get('/searchGame', async (req, res) => {
-    if (!req.session.userId) { //makes sure user is logged in
+    if (!req.session.userId) {
         return res.redirect('/');
     }
 
@@ -198,7 +167,7 @@ app.get('/searchGame', async (req, res) => {
         let response = await fetch(url);
         let data = await response.json();
 
-        res.render('searchResults.ejs', {gameTitle, games: data.results});
+        res.render('searchResults.ejs', { gameTitle, games: data.results });
 
     } catch (err) {
         console.error("RAWG API error:", err);
@@ -206,7 +175,7 @@ app.get('/searchGame', async (req, res) => {
     }
 });
 
-// route for displaying the game info
+// Display game info
 app.get('/gameInfo', async (req, res) => {
     if (!req.session.userId) {
         return res.redirect('/');
@@ -228,12 +197,11 @@ app.get('/gameInfo', async (req, res) => {
     }
 });
 
-// allows user to save game to their library
+// Save game to library
 app.post('/saveGame', async (req, res) => {
     if (!req.session.userId) {
         return res.json({
-            success: false,
-            message: "You must be logged in to save a game."
+            error: "You must be logged in to save a game."
         });
     }
 
@@ -246,7 +214,6 @@ app.post('/saveGame', async (req, res) => {
     let userId = req.session.userId;
 
     try {
-        // starts by checking if the game exists (by rawg id) for that user in the table
         let sql = `SELECT id
                    FROM saved_games
                    WHERE user_id = ?
@@ -255,7 +222,7 @@ app.post('/saveGame', async (req, res) => {
 
         const [rows] = await pool.query(sql, sqlParams);
 
-        if (rows.length > 0) { // if the game already exists for the user then it is updated instead of newly inserted
+        if (rows.length > 0) {
             sql = `UPDATE saved_games
                    SET title = ?,
                        cover_image = ?,
@@ -270,12 +237,10 @@ app.post('/saveGame', async (req, res) => {
             await pool.query(sql, sqlParams);
 
             return res.json({
-                success: true,
-                message: "Game updated successfully in your library!"
+                success: "Game updated successfully in your library!"
             });
         }
 
-        // if the game wasn't found then it is added and tied to the user
         sql = `INSERT INTO saved_games
                (user_id, rawg_game_id, title, cover_image, genres, status, is_favorite)
                VALUES (?, ?, ?, ?, ?, ?, ?)`;
@@ -284,19 +249,18 @@ app.post('/saveGame', async (req, res) => {
         await pool.query(sql, sqlParams);
 
         res.json({
-            success: true,
-            message: "Game saved successfully to your library!"
+            success: "Game saved successfully to your library!"
         });
 
     } catch (err) {
         console.error("Database error:", err);
-        res.status(500).json({
-            success: false,
-            message: "Database error!"
+        res.json({
+            error: "Database error!"
         });
     }
 });
 
+// Library page
 app.get('/library', async (req, res) => {
     if (!req.session.userId) {
         return res.redirect('/');
@@ -321,6 +285,6 @@ app.get('/library', async (req, res) => {
     }
 });
 
-app.listen(3000, ()=>{
-    console.log("Express server running")
-})
+app.listen(3000, () => {
+    console.log("Express server running");
+});
