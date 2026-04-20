@@ -189,9 +189,17 @@ app.get('/gameInfo', async (req, res) => {
         let response = await fetch(url);
         let game = await response.json();
 
-        res.render('game.ejs', { game });
+        let sql = `SELECT r.id, r.rating, r.review_title, r.review_text, r.created_at, u.username
+                   FROM reviews r
+                   JOIN users u ON r.user_id = u.id
+                   WHERE r.rawg_game_id = ?
+                   ORDER BY r.created_at DESC`;
 
-    } catch (err) {
+        let  [reviews] = await pool.query(sql, [gameId]);
+
+        res.render('game.ejs', { game, reviews, username: req.session.username });
+
+    } catch (err) { 
         console.error("RAWG API error:", err);
         res.status(500).send("RAWG API error!");
     }
@@ -282,6 +290,52 @@ app.get('/library', async (req, res) => {
     } catch (err) {
         console.error("Database error:", err);
         res.status(500).send("Database error!");
+    }
+});
+// Adding a review
+app.post('/addReview', async (req, res) => {
+    if (!req.session.userId) {
+        return res.json({
+            error: "You must be logged in to add a review."
+        });
+    }
+
+    let userId = req.session.userId;
+    let rawgGameId = req.body.rawg_game_id;
+    let rating = parseInt(req.body.rating);
+    let reviewTitle = req.body.review_title;
+    let reviewText = req.body.review_text;
+
+    try {
+        if (!rating || rating < 1 || rating > 5) {
+            return res.json({
+                error: "Enter a rating between 1 and 5."
+            });
+        }
+        if (!reviewTitle || reviewTitle.trim() === "") {
+            return res.json({
+                error: "Review title cannot be blank."
+            });
+        }
+        if (!reviewText || reviewText.trim() === "") {
+            return res.json({
+                error: "Review text cannot be blank."
+            });
+        }
+        let sql = `INSERT INTO reviews
+                   (user_id, rawg_game_id, rating, review_title, review_text)
+                   VALUES (?, ?, ?, ?, ?)`;
+        let sqlParams = [userId, rawgGameId, rating, reviewTitle, reviewText];
+
+        await pool.query(sql, sqlParams);
+        res.json({
+            success: "Review added"
+        });
+    } catch (err) {
+        console.error("Database error:", err);
+        res.json({
+            error: "Database error!"
+        });
     }
 });
 
