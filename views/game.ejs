@@ -55,12 +55,66 @@
 
             <button type="submit" class="btn btn-success">Save Game</button>
         </form>
-    </main>
+        
+    <hr class="my-4">
 
+    <h3>Add Review</h3>
+    <div id="reviewFeedbackDiv" class="mb-2"></div>
+    <form id="reviewForm" class="mb-4">
+        <input type="hidden" name="rawg_game_id" value="<%= game.id %>">
+        <div class="mb-3">
+            <label for="rating" class="form-label">Rating:</label>
+            <select name="rating" id="rating" class="form-select">
+                <option value="">Select One</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="review_title" class="form-label">Review Title:</label>
+            <input type="text" name="review_title" id="review_title" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="review_text" class="form-label">Your Review</label>
+            <textarea name="review_text" id="review_text" class="form-control" rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+
+    <hr class="my-4">
+
+    <h3>User Reviews</h3>
+
+    <% if (reviews && reviews.length === 0) { %>
+        <p>No reviews yet.</p>
+    <% } %>
+
+    <% if (reviews && reviews.length > 0) { %>
+        <% for (let review of reviews) { %>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title"><%= review.review_title %></h5>
+                    <h6 class="card-subtitle mb-2 text-muted"><%= review.username %> | <%= review.rating %>/5</h6>
+                    <p class="card-text"><%= review.review_text %></p>
+                    <small class="text-muted">
+                        <%= new Date(review.created_at).toLocaleString() %>
+                    </small>
+                </div>
+            </div>
+        <% } %>
+    <% } %>
+</main>
     <footer>
         <%- include("partials/footer.ejs") %>
     </footer>
 
     <script src="/js/saveGame.js"></script>
+    <script src="/js/review.js"></script>
 </body>
 </html>
