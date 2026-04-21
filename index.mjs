@@ -292,6 +292,33 @@ app.get('/library', async (req, res) => {
         res.status(500).send("Database error!");
     }
 });
+
+
+
+// Trending page
+app.get('/trending', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    try {
+        // let url = `https://www.cheapshark.com/redirect?dealID=${dealId}`;
+        // Store ID is set to steam (1), page size is set to 10 games and it'll show the highest rated deals using
+        //their own sites criteria (Rating and deal amount), max age is set to 72 hours so its new deals.
+
+        let url = `https://www.cheapshark.com/api/1.0/deals?storeID=1&pageSize=10&maxAge=72`;
+        let response = await fetch(url);
+        let dealData = await response.json();
+        
+        res.render('trending.ejs', { deals: dealData });
+    } catch (err) {
+        console.error("Error fetching trending games:", err);
+        res.status(500).send("Error fetching trending games!");
+    }
+});
+
+
+
 // Adding a review
 app.post('/addReview', async (req, res) => {
     if (!req.session.userId) {
