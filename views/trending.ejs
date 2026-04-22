@@ -25,12 +25,13 @@
                     <img 
                         src="<%= deal.thumb %>" 
                         alt="<%= deal.title %>" 
-                        style="max-width: 250px;"
+                        class="deal-thumb"
                     >
                 <% } %>
-                <p><strong>Normal Price:</strong> $<%= deal.normalPrice %></p>
-                <p><strong>Sale Price:</strong> $<%= deal.salePrice %></p>
-                <p><strong>Discount:</strong> <%= deal.savings %>%</p>
+
+                <p><strong>Normal Price:</strong> $<%= parseFloat(deal.normalPrice).toFixed(2) %></p>
+                <p><strong>Sale Price:</strong> $<%= parseFloat(deal.salePrice).toFixed(2) %></p>
+                <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(2) %>%</p>
                 <a href="https://www.cheapshark.com/redirect?dealID=<%= deal.dealID %>" target="_blank" class="btn btn-primary">View Deal</a>
             </section>
         <% } %>
