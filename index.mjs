@@ -268,24 +268,40 @@ app.post('/saveGame', async (req, res) => {
     }
 });
 
-// //Remove game from library
-// app.post('/removeGame', async (req, res) => {
-//     if (!req.session.userId) {
-//         return res.json({
-//             error: "You must be logged in to remove a game."
-//         });
-//     }
-//     let rawgGameId = req.body.rawg_game_id;
-//     let title = req.body.title;
-//     let coverImage = req.body.cover_image;
-//     let genres = req.body.genres;
-//     let status = req.body.status;
-//     let isFavorite = req.body.is_favorite ? 1 : 0;
-//     let userId = req.session.userId;
+//Remove game from library
+app.post('/removeGame', async (req, res) => {
+    if (!req.session.userId) {
+        return res.json({
+            error: "You must be logged in to remove a game."
+        });
+    }
+    let rawgGameId = req.body.rawg_game_id;
+    let title = req.body.title;
+    let coverImage = req.body.cover_image;
+    let genres = req.body.genres;
+    let status = req.body.status;
+    let isFavorite = req.body.is_favorite ? 1 : 0;
+    let userId = req.session.userId;
 
+    try {
+        let sql = `DELETE FROM saved_games
+                   WHERE user_id = ?
+                   AND rawg_game_id = ?`;
+        let sqlParams = [userId, rawgGameId];
 
+        await pool.query(sql, sqlParams);
 
-// }
+        res.json({
+            success: "Game removed successfully from your library!"
+        });
+
+    } catch (err) {
+        console.error("Database error:", err);
+        res.json({
+            error: "Database error!"
+        });
+    }
+});
 
 // Library page
 app.get('/library', async (req, res) => {
