@@ -189,9 +189,17 @@ app.get('/gameInfo', async (req, res) => {
         let response = await fetch(url);
         let game = await response.json();
 
-        res.render('game.ejs', { game });
+        let sql = `SELECT r.id, r.rating, r.review_title, r.review_text, r.created_at, u.username
+                   FROM reviews r
+                   JOIN users u ON r.user_id = u.id
+                   WHERE r.rawg_game_id = ?
+                   ORDER BY r.created_at DESC`;
 
-    } catch (err) {
+        let  [reviews] = await pool.query(sql, [gameId]);
+
+        res.render('game.ejs', { game, reviews, username: req.session.username });
+
+    } catch (err) { 
         console.error("RAWG API error:", err);
         res.status(500).send("RAWG API error!");
     }
@@ -260,6 +268,25 @@ app.post('/saveGame', async (req, res) => {
     }
 });
 
+// //Remove game from library
+// app.post('/removeGame', async (req, res) => {
+//     if (!req.session.userId) {
+//         return res.json({
+//             error: "You must be logged in to remove a game."
+//         });
+//     }
+//     let rawgGameId = req.body.rawg_game_id;
+//     let title = req.body.title;
+//     let coverImage = req.body.cover_image;
+//     let genres = req.body.genres;
+//     let status = req.body.status;
+//     let isFavorite = req.body.is_favorite ? 1 : 0;
+//     let userId = req.session.userId;
+
+
+
+// }
+
 // Library page
 app.get('/library', async (req, res) => {
     if (!req.session.userId) {
@@ -282,6 +309,79 @@ app.get('/library', async (req, res) => {
     } catch (err) {
         console.error("Database error:", err);
         res.status(500).send("Database error!");
+    }
+});
+
+
+
+// Trending page
+app.get('/trending', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/');
+    }
+
+    try {
+        // let url = `https://www.cheapshark.com/redirect?dealID=${dealId}`;
+        // Store ID is set to steam (1), page size is set to 10 games and it'll show the highest rated deals using
+        //their own sites criteria (Rating and deal amount), max age is set to 72 hours so its new deals.
+
+        let url = `https://www.cheapshark.com/api/1.0/deals?storeID=1&pageSize=10&maxAge=72`;
+        let response = await fetch(url);
+        let dealData = await response.json();
+        
+        res.render('trending.ejs', { deals: dealData });
+    } catch (err) {
+        console.error("Error fetching trending games:", err);
+        res.status(500).send("Error fetching trending games!");
+    }
+});
+
+
+
+// Adding a review
+app.post('/addReview', async (req, res) => {
+    if (!req.session.userId) {
+        return res.json({
+            error: "You must be logged in to add a review."
+        });
+    }
+
+    let userId = req.session.userId;
+    let rawgGameId = req.body.rawg_game_id;
+    let rating = parseInt(req.body.rating);
+    let reviewTitle = req.body.review_title;
+    let reviewText = req.body.review_text;
+
+    try {
+        if (!rating || rating < 1 || rating > 5) {
+            return res.json({
+                error: "Enter a rating between 1 and 5."
+            });
+        }
+        if (!reviewTitle || reviewTitle.trim() === "") {
+            return res.json({
+                error: "Review title cannot be blank."
+            });
+        }
+        if (!reviewText || reviewText.trim() === "") {
+            return res.json({
+                error: "Review text cannot be blank."
+            });
+        }
+        let sql = `INSERT INTO reviews
+                   (user_id, rawg_game_id, rating, review_title, review_text)
+                   VALUES (?, ?, ?, ?, ?)`;
+        let sqlParams = [userId, rawgGameId, rating, reviewTitle, reviewText];
+
+        await pool.query(sql, sqlParams);
+        res.json({
+            success: "Review added"
+        });
+    } catch (err) {
+        console.error("Database error:", err);
+        res.json({
+            error: "Database error!"
+        });
     }
 });
 

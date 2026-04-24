@@ -25,7 +25,6 @@
                 <% if (game.background_image) { %>
                     <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 250px;">
                 <% } %>
-
                 <p>Released: <%= game.released || "N/A" %></p>
 
                 <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary">

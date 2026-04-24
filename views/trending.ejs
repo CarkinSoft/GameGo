@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<body>
+    <header>
+        <h1>Trending Games</h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <% if (deals.length === 0) { %>
+            <p>No trending games available at the moment.</p>
+        <% } %>
+
+        <% for (let deal of deals) { %>
+            <section class="card mb-3 p-3">
+                <h2><%= deal.title %></h2>
+
+                <% if (deal.thumb) { %>
+                    <img 
+                        src="<%= deal.thumb %>" 
+                        alt="<%= deal.title %>" 
+                        class="deal-thumb"
+                    >
+                <% } %>
+
+                <p><strong>Normal Price:</strong> $<%= parseFloat(deal.normalPrice).toFixed(2) %></p>
+                <p><strong>Sale Price:</strong> $<%= parseFloat(deal.salePrice).toFixed(2) %></p>
+                <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(2) %>%</p>
+                <p><strong>Metacritic Score:</strong> <%= deal.metacriticScore %></p>
+                <p><strong>Release Date:</strong> <%= new Date(deal.releaseDate * 1000).toLocaleDateString() %></p>
+                <a href="https://www.cheapshark.com/redirect?dealID=<%= deal.dealID %>" target="_blank" class="btn btn-primary">View Deal</a>
+            </section>
+        <% } %>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>

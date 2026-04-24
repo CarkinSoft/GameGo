@@ -64,6 +64,14 @@ img {
     margin: 0 auto;
 }
 
+.deal-thumb {
+    max-width: 250px;
+    margin: 3 auto;
+    background-color: darkslateblue;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
 .row {
     margin-left: 0;
     margin-right: 0;
