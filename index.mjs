@@ -268,6 +268,25 @@ app.post('/saveGame', async (req, res) => {
     }
 });
 
+// //Remove game from library
+// app.post('/removeGame', async (req, res) => {
+//     if (!req.session.userId) {
+//         return res.json({
+//             error: "You must be logged in to remove a game."
+//         });
+//     }
+//     let rawgGameId = req.body.rawg_game_id;
+//     let title = req.body.title;
+//     let coverImage = req.body.cover_image;
+//     let genres = req.body.genres;
+//     let status = req.body.status;
+//     let isFavorite = req.body.is_favorite ? 1 : 0;
+//     let userId = req.session.userId;
+
+
+
+// }
+
 // Library page
 app.get('/library', async (req, res) => {
     if (!req.session.userId) {

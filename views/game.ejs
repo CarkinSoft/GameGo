@@ -16,10 +16,9 @@
         <% if (game.background_image) { %>
             <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 300px;">
         <% } %>
-
         <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
         <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-
+        
         <p>
             <strong>Genres:</strong>
             <% if (game.genres && game.genres.length > 0) { %>
