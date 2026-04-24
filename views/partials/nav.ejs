@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md bg-body-tertiary" data-bs-theme="dark">
+<nav class="navbar navbar-expand-md bg-body-tertiary mb-4" data-bs-theme="dark">
     <div class="container-fluid">
 
         <a class="navbar-brand" href="/home">GameGo</a>
@@ -9,25 +9,30 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/home">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/library">My Library</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/trending">Trending</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-            </ul>
+            <% if (authenticated) { %>
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/library">My Library</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/trending">Trending</a>
+                    </li>
+                </ul>
 
-            <form class="d-flex" role="search" action="/searchGame" method="GET">
-                <input class="form-control me-2" type="search" name="gameTitle" placeholder="Search games" required>
-                <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
+                <span class="navbar-text me-3">
+                    <%= username %>
+                </span>
+
+                <form class="d-flex me-3" role="search" action="/searchGame" method="GET">
+                    <input class="form-control me-2" type="search" name="gameTitle" placeholder="Search games" required>
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+
+                <a class="btn btn-outline-light" href="/logout">Logout</a>
+            <% } %>
         </div>
     </div>
 </nav>
