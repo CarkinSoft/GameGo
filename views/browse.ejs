@@ -23,20 +23,18 @@
 
                 <div class="browse-track" id="popularTrack">
                     <% for (let game of popularGames) { %>
-                        <div class="browse-card">
-                            <h3><%= game.name %></h3>
+                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                            <div class="browse-card">
+                                <h3><%= game.name %></h3>
 
-                            <% if (game.background_image) { %>
-                                <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                            <% } %>
+                                <% if (game.background_image) { %>
+                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                <% } %>
 
-                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-
-                            <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary btn-sm">
-                                View Game
-                            </a>
-                        </div>
+                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                            </div>
+                        </a>
                     <% } %>
                 </div>
 
@@ -53,20 +51,18 @@
 
                 <div class="browse-track" id="topRatedTrack">
                     <% for (let game of topRatedGames) { %>
-                        <div class="browse-card">
-                            <h3><%= game.name %></h3>
+                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                            <div class="browse-card">
+                                <h3><%= game.name %></h3>
 
-                            <% if (game.background_image) { %>
-                                <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                            <% } %>
+                                <% if (game.background_image) { %>
+                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                <% } %>
 
-                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-
-                            <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary btn-sm">
-                                View Game
-                            </a>
-                        </div>
+                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                            </div>
+                        </a>
                     <% } %>
                 </div>
 
@@ -83,20 +79,18 @@
 
                 <div class="browse-track" id="recentTrack">
                     <% for (let game of recentGames) { %>
-                        <div class="browse-card">
-                            <h3><%= game.name %></h3>
+                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                            <div class="browse-card">
+                                <h3><%= game.name %></h3>
 
-                            <% if (game.background_image) { %>
-                                <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                            <% } %>
+                                <% if (game.background_image) { %>
+                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                <% } %>
 
-                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-
-                            <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary btn-sm">
-                                View Game
-                            </a>
-                        </div>
+                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                            </div>
+                        </a>
                     <% } %>
                 </div>
 
@@ -119,20 +113,18 @@
 
                     <div class="browse-track" id="recommendedTrack">
                         <% for (let game of recommendedGames) { %>
-                            <div class="browse-card">
-                                <h3><%= game.name %></h3>
+                            <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                                <div class="browse-card">
+                                    <h3><%= game.name %></h3>
 
-                                <% if (game.background_image) { %>
-                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                                <% } %>
+                                    <% if (game.background_image) { %>
+                                        <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                    <% } %>
 
-                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-
-                                <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary btn-sm">
-                                    View Game
-                                </a>
-                            </div>
+                                    <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                    <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                                </div>
+                            </a>
                         <% } %>
                     </div>
 

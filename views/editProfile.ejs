@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<body>
+    <header>
+        <h1>Edit Profile</h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <% if (profileSuccess) { %>
+            <div class="success-message"><%= profileSuccess %></div>
+        <% } %>
+
+        <% if (profileError) { %>
+            <div class="error-message"><%= profileError %></div>
+        <% } %>
+
+        <section class="card p-3">
+            <form action="/editProfile" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Username:</label>
+                    <input type="text" class="form-control" value="<%= userInfo.username %>" disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Display Name:</label>
+                    <input type="text" name="display_name" class="form-control" value="<%= userInfo.display_name %>">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Profile Image Path or URL:</label>
+                    <input type="text" name="profile_image" class="form-control" value="<%= userInfo.profile_image %>">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Bio:</label>
+                    <textarea name="bio" class="form-control" rows="4"><%= userInfo.bio || "" %></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label d-block">Select Featured Games:</label>
+
+                    <% if (!savedGames || savedGames.length === 0) { %>
+                        <p>You do not have any saved games yet.</p>
+                    <% } %>
+
+                    <% for (let game of savedGames) { %>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="featured_games"
+                                value="<%= game.rawg_game_id %>"
+                                id="game_<%= game.rawg_game_id %>"
+                                <%= selectedFeaturedGames.includes(String(game.rawg_game_id)) ? "checked" : "" %>
+                            >
+                            <label class="form-check-label" for="game_<%= game.rawg_game_id %>">
+                                <%= game.title %>
+                            </label>
+                        </div>
+                    <% } %>
+                </div>
+
+                <button class="btn btn-success">Update Profile</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>

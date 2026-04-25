@@ -164,3 +164,46 @@ img {
 .carousel-btn:hover {
     opacity: 0.9;
 }
+
+.game-card-link,
+.browse-card-link,
+.profile-name-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.game-card-link .card,
+.browse-card-link .browse-card {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.game-card-link:hover .card,
+.browse-card-link:hover .browse-card {
+    transform: translateY(-4px);
+}
+
+.search-card img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+}
+
+.profile-review-img {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-hero-img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}

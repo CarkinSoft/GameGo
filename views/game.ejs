@@ -113,12 +113,6 @@
 
                     <button type="submit" class="btn btn-success">Update Saved Game</button>
                 </form>
-
-                <form action="/deleteSavedGame" method="POST" class="mt-3">
-                    <input type="hidden" name="savedGameId" value="<%= savedGame.id %>">
-                    <button type="submit" class="btn btn-danger">Remove From Library</button>
-                </form>
-
             <% } else { %>
                 <p>This game is not in your library yet.</p>
 
@@ -153,35 +147,41 @@
 
         <section class="card mb-4 p-3">
             <h3>Add Review</h3>
-            <div id="reviewFeedbackDiv" class="mb-2"></div>
 
-            <form id="reviewForm" class="mb-4">
-                <input type="hidden" name="rawg_game_id" value="<%= game.id %>">
+            <% if (currentUserReview) { %>
+                <p>You already reviewed this game.</p>
+                <a href="/editReview?reviewId=<%= currentUserReview.id %>" class="btn btn-warning">Edit Your Review</a>
+            <% } else { %>
+                <div id="reviewFeedbackDiv" class="mb-2"></div>
 
-                <div class="mb-3">
-                    <label for="rating" class="form-label">Rating:</label>
-                    <select name="rating" id="rating" class="form-select">
-                        <option value="">Select One</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
+                <form id="reviewForm" class="mb-4">
+                    <input type="hidden" name="rawg_game_id" value="<%= game.id %>">
 
-                <div class="mb-3">
-                    <label for="review_title" class="form-label">Review Title:</label>
-                    <input type="text" name="review_title" id="review_title" class="form-control">
-                </div>
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating:</label>
+                        <select name="rating" id="rating" class="form-select">
+                            <option value="">Select One</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
 
-                <div class="mb-3">
-                    <label for="review_text" class="form-label">Your Review</label>
-                    <textarea name="review_text" id="review_text" class="form-control" rows="4"></textarea>
-                </div>
+                    <div class="mb-3">
+                        <label for="review_title" class="form-label">Review Title:</label>
+                        <input type="text" name="review_title" id="review_title" class="form-control">
+                    </div>
 
-                <button type="submit" class="btn btn-primary">Submit Review</button>
-            </form>
+                    <div class="mb-3">
+                        <label for="review_text" class="form-label">Your Review</label>
+                        <textarea name="review_text" id="review_text" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            <% } %>
         </section>
 
         <section class="card mb-4 p-3">
@@ -195,12 +195,43 @@
                 <% for (let review of reviews) { %>
                     <div class="card mb-3">
                         <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <a href="/user/<%= review.user_id %>">
+                                    <img
+                                        src="<%= review.profile_image || '/img/defaultphoto.jpeg' %>"
+                                        alt="<%= review.display_name %>"
+                                        class="profile-review-img"
+                                    >
+                                </a>
+
+                                <div>
+                                    <a href="/user/<%= review.user_id %>" class="profile-name-link">
+                                        <strong><%= review.display_name %></strong>
+                                    </a>
+                                    <div class="text-muted"><%= review.rating %>/5</div>
+                                </div>
+                            </div>
+
                             <h5 class="card-title"><%= review.review_title %></h5>
-                            <h6 class="card-subtitle mb-2 text-muted"><%= review.username %> | <%= review.rating %>/5</h6>
                             <p class="card-text"><%= review.review_text %></p>
-                            <small class="text-muted">
+
+                            <small class="text-muted d-block mb-2">
                                 <%= new Date(review.created_at).toLocaleString() %>
                             </small>
+
+                            <% if (review.user_id == userId) { %>
+                                <div class="d-flex gap-2">
+                                    <a href="/editReview?reviewId=<%= review.id %>" class="btn btn-warning btn-sm">
+                                        Edit
+                                    </a>
+
+                                    <form action="/deleteReview" method="POST">
+                                        <input type="hidden" name="reviewId" value="<%= review.id %>">
+                                        <input type="hidden" name="rawg_game_id" value="<%= review.rawg_game_id %>">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </div>
+                            <% } %>
                         </div>
                     </div>
                 <% } %>

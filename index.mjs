@@ -37,7 +37,10 @@ function isUserAuthenticated(req, res, next) {
 
 app.use((req, res, next) => {
     res.locals.authenticated = req.session.authenticated || false;
+    res.locals.userId = req.session.userId || 0;
     res.locals.username = req.session.username || "";
+    res.locals.displayName = req.session.displayName || req.session.username || "";
+    res.locals.profileImage = req.session.profileImage || "/img/defaultphoto.jpeg";
     res.locals.isAdmin = req.session.isAdmin || 0;
     next();
 });
@@ -92,9 +95,18 @@ app.post('/signup', async (req, res) => {
 
         let hashedPassword = await bcrypt.hash(password, 10);
 
-        sql = `INSERT INTO users (username, password, is_admin)
-               VALUES (?, ?, ?)`;
-        sqlParams = [username, hashedPassword, 0];
+        sql = `INSERT INTO users
+               (username, password, display_name, profile_image, bio, featured_games, is_admin)
+               VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        sqlParams = [
+            username,
+            hashedPassword,
+            username,
+            "/img/defaultphoto.jpeg",
+            "",
+            "",
+            0
+        ];
 
         await pool.query(sql, sqlParams);
 
@@ -126,7 +138,7 @@ app.post('/login', async (req, res) => {
 
         username = username.trim();
 
-        let sql = `SELECT id, username, password, is_admin
+        let sql = `SELECT id, username, password, display_name, profile_image, is_admin
                    FROM users
                    WHERE username = ?`;
         let sqlParams = [username];
@@ -149,6 +161,8 @@ app.post('/login', async (req, res) => {
         req.session.authenticated = true;
         req.session.userId = rows[0].id;
         req.session.username = rows[0].username;
+        req.session.displayName = rows[0].display_name;
+        req.session.profileImage = rows[0].profile_image || "/img/defaultphoto.jpeg";
         req.session.isAdmin = rows[0].is_admin;
 
         res.redirect('/home');
@@ -192,15 +206,86 @@ app.get('/dbTest', async (req, res) => {
 
 // Search for games
 app.get('/searchGame', isUserAuthenticated, async (req, res) => {
-    let gameTitle = req.query.gameTitle;
+    let gameTitle = req.query.gameTitle || "";
+    let currentPage = parseInt(req.query.page) || 1;
+    let pageSize = 12;
+
+    if (currentPage < 1) {
+        currentPage = 1;
+    }
 
     try {
-        let url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(gameTitle)}&page_size=10`;
+        let url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(gameTitle)}&page_size=${pageSize}&page=${currentPage}`;
 
         let response = await fetch(url);
         let data = await response.json();
 
-        res.render('searchResults.ejs', { gameTitle, games: data.results || [] });
+        let totalPages = Math.ceil((data.count || 0) / pageSize);
+        if (totalPages < 1) {
+            totalPages = 1;
+        }
+
+        res.render('searchResults.ejs', {
+            gameTitle,
+            games: data.results || [],
+            currentPage,
+            totalPages
+        });
+
+    } catch (err) {
+        console.error("RAWG API error:", err);
+        res.status(500).send("RAWG API error!");
+    }
+});
+
+app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
+    let gameId = req.query.gameId;
+    let userId = req.session.userId;
+
+    try {
+        let url = `https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_KEY}`;
+
+        let response = await fetch(url);
+        let game = await response.json();
+
+        let reviewSql = `SELECT r.id,
+                                r.user_id,
+                                r.rawg_game_id,
+                                r.rating,
+                                r.review_title,
+                                r.review_text,
+                                r.created_at,
+                                u.username,
+                                u.display_name,
+                                u.profile_image
+                         FROM reviews r
+                         JOIN users u ON r.user_id = u.id
+                         WHERE r.rawg_game_id = ?
+                         ORDER BY r.created_at DESC`;
+
+        let savedSql = `SELECT id, rawg_game_id, title, cover_image, genres, status, is_favorite, created_at
+                        FROM saved_games
+                        WHERE user_id = ?
+                        AND rawg_game_id = ?`;
+
+        let myReviewSql = `SELECT id, rawg_game_id, rating, review_title, review_text
+                           FROM reviews
+                           WHERE user_id = ?
+                           AND rawg_game_id = ?`;
+
+        let [reviews] = await pool.query(reviewSql, [gameId]);
+        let [savedRows] = await pool.query(savedSql, [userId, gameId]);
+        let [myReviewRows] = await pool.query(myReviewSql, [userId, gameId]);
+
+        let savedGame = savedRows.length > 0 ? savedRows[0] : null;
+        let currentUserReview = myReviewRows.length > 0 ? myReviewRows[0] : null;
+
+        res.render('game.ejs', {
+            game,
+            reviews,
+            savedGame,
+            currentUserReview
+        });
 
     } catch (err) {
         console.error("RAWG API error:", err);
@@ -532,14 +617,29 @@ app.post('/addReview', async (req, res) => {
                 error: "Enter a rating between 1 and 5."
             });
         }
+
         if (!reviewTitle || reviewTitle.trim() === "") {
             return res.json({
                 error: "Review title cannot be blank."
             });
         }
+
         if (!reviewText || reviewText.trim() === "") {
             return res.json({
                 error: "Review text cannot be blank."
+            });
+        }
+
+        let checkSql = `SELECT id
+                        FROM reviews
+                        WHERE user_id = ?
+                        AND rawg_game_id = ?`;
+
+        let [existingRows] = await pool.query(checkSql, [userId, rawgGameId]);
+
+        if (existingRows.length > 0) {
+            return res.json({
+                error: "You already reviewed this game. Use the update option."
             });
         }
 
@@ -549,14 +649,258 @@ app.post('/addReview', async (req, res) => {
         let sqlParams = [userId, rawgGameId, rating, reviewTitle, reviewText];
 
         await pool.query(sql, sqlParams);
+
         res.json({
             success: "Review added"
         });
+
     } catch (err) {
         console.error("Database error:", err);
         res.json({
             error: "Database error!"
         });
+    }
+});
+
+app.get('/profile', isUserAuthenticated, (req, res) => {
+    res.redirect(`/user/${req.session.userId}`);
+});
+
+app.get('/user/:userId', isUserAuthenticated, async (req, res) => {
+    let profileUserId = req.params.userId;
+
+    try {
+        let userSql = `SELECT id, username, display_name, profile_image, bio, featured_games, created_at
+                       FROM users
+                       WHERE id = ?`;
+
+        let [userRows] = await pool.query(userSql, [profileUserId]);
+
+        if (userRows.length == 0) {
+            return res.status(404).send("User not found.");
+        }
+
+        let profileUser = userRows[0];
+        let isOwnProfile = Number(profileUser.id) === Number(req.session.userId);
+
+        let statsSql = `SELECT
+                            COUNT(*) totalSaved,
+                            SUM(CASE WHEN is_favorite = 1 THEN 1 ELSE 0 END) totalFavorites
+                        FROM saved_games
+                        WHERE user_id = ?`;
+
+        let reviewStatsSql = `SELECT COUNT(*) totalReviews
+                              FROM reviews
+                              WHERE user_id = ?`;
+
+        let [statsRows] = await pool.query(statsSql, [profileUserId]);
+        let [reviewStatsRows] = await pool.query(reviewStatsSql, [profileUserId]);
+
+        let featuredGames = [];
+        let selectedGameIds = [];
+
+        if (profileUser.featured_games && profileUser.featured_games.trim() != "") {
+            selectedGameIds = profileUser.featured_games
+                .split(",")
+                .map(id => id.trim())
+                .filter(id => id != "");
+        }
+
+        if (selectedGameIds.length > 0) {
+            let placeholders = selectedGameIds.map(() => "?").join(", ");
+            let featuredSql = `SELECT rawg_game_id, title, cover_image, status, is_favorite
+                               FROM saved_games
+                               WHERE user_id = ?
+                               AND rawg_game_id IN (${placeholders})`;
+
+            let [featuredRows] = await pool.query(featuredSql, [profileUserId, ...selectedGameIds]);
+            featuredGames = featuredRows;
+        }
+
+        res.render('profile.ejs', {
+            profileUser,
+            isOwnProfile,
+            featuredGames,
+            stats: statsRows[0],
+            reviewStats: reviewStatsRows[0]
+        });
+
+    } catch (err) {
+        console.error("Profile route error:", err);
+        res.status(500).send("Profile route error!");
+    }
+});
+
+app.get('/editProfile', isUserAuthenticated, async (req, res) => {
+    let userId = req.session.userId;
+    let profileSuccess = req.query.profileSuccess || "";
+    let profileError = req.query.profileError || "";
+
+    try {
+        let userSql = `SELECT id, username, display_name, profile_image, bio, featured_games
+                       FROM users
+                       WHERE id = ?`;
+
+        let gamesSql = `SELECT rawg_game_id, title
+                        FROM saved_games
+                        WHERE user_id = ?
+                        ORDER BY title`;
+
+        let [userRows] = await pool.query(userSql, [userId]);
+        let [savedGames] = await pool.query(gamesSql, [userId]);
+
+        let userInfo = userRows[0];
+        let selectedFeaturedGames = [];
+
+        if (userInfo.featured_games && userInfo.featured_games.trim() != "") {
+            selectedFeaturedGames = userInfo.featured_games
+                .split(",")
+                .map(id => id.trim());
+        }
+
+        res.render('editProfile.ejs', {
+            userInfo,
+            savedGames,
+            selectedFeaturedGames,
+            profileSuccess,
+            profileError
+        });
+
+    } catch (err) {
+        console.error("Edit profile route error:", err);
+        res.status(500).send("Edit profile route error!");
+    }
+});
+
+app.post('/editProfile', isUserAuthenticated, async (req, res) => {
+    let userId = req.session.userId;
+    let displayName = req.body.display_name;
+    let profileImage = req.body.profile_image;
+    let bio = req.body.bio;
+    let featuredGames = req.body.featured_games || [];
+
+    try {
+        if (!displayName || displayName.trim() == "") {
+            return res.redirect('/editProfile?profileError=' + encodeURIComponent('Display name cannot be blank.'));
+        }
+
+        displayName = displayName.trim();
+
+        if (!profileImage || profileImage.trim() == "") {
+            profileImage = "/img/defaultphoto.jpeg";
+        } else {
+            profileImage = profileImage.trim();
+        }
+
+        if (!bio) {
+            bio = "";
+        }
+
+        if (!Array.isArray(featuredGames)) {
+            featuredGames = [featuredGames];
+        }
+
+        let featuredGamesString = featuredGames.join(",");
+
+        let sql = `UPDATE users
+                   SET display_name = ?, profile_image = ?, bio = ?, featured_games = ?
+                   WHERE id = ?`;
+
+        let sqlParams = [displayName, profileImage, bio, featuredGamesString, userId];
+
+        await pool.query(sql, sqlParams);
+
+        req.session.displayName = displayName;
+        req.session.profileImage = profileImage;
+
+        res.redirect('/editProfile?profileSuccess=' + encodeURIComponent('Profile updated successfully.'));
+
+    } catch (err) {
+        console.error("Profile update error:", err);
+        res.redirect('/editProfile?profileError=' + encodeURIComponent('Database error while updating profile.'));
+    }
+});
+
+app.get('/editReview', isUserAuthenticated, async (req, res) => {
+    let reviewId = req.query.reviewId;
+    let userId = req.session.userId;
+
+    try {
+        let sql = `SELECT id, user_id, rawg_game_id, rating, review_title, review_text
+                   FROM reviews
+                   WHERE id = ?
+                   AND user_id = ?`;
+
+        let [rows] = await pool.query(sql, [reviewId, userId]);
+
+        if (rows.length == 0) {
+            return res.redirect('/home');
+        }
+
+        let reviewInfo = rows[0];
+        res.render('editReview.ejs', { reviewInfo });
+
+    } catch (err) {
+        console.error("Edit review route error:", err);
+        res.status(500).send("Edit review route error!");
+    }
+});
+
+app.post('/updateReview', isUserAuthenticated, async (req, res) => {
+    let reviewId = req.body.reviewId;
+    let rawgGameId = req.body.rawg_game_id;
+    let userId = req.session.userId;
+    let rating = parseInt(req.body.rating);
+    let reviewTitle = req.body.review_title;
+    let reviewText = req.body.review_text;
+
+    try {
+        if (!rating || rating < 1 || rating > 5) {
+            return res.redirect(`/editReview?reviewId=${reviewId}`);
+        }
+
+        if (!reviewTitle || reviewTitle.trim() == "") {
+            return res.redirect(`/editReview?reviewId=${reviewId}`);
+        }
+
+        if (!reviewText || reviewText.trim() == "") {
+            return res.redirect(`/editReview?reviewId=${reviewId}`);
+        }
+
+        let sql = `UPDATE reviews
+                   SET rating = ?, review_title = ?, review_text = ?
+                   WHERE id = ?
+                   AND user_id = ?`;
+
+        let sqlParams = [rating, reviewTitle, reviewText, reviewId, userId];
+
+        await pool.query(sql, sqlParams);
+
+        res.redirect(`/gameInfo?gameId=${rawgGameId}`);
+
+    } catch (err) {
+        console.error("Update review error:", err);
+        res.status(500).send("Update review error!");
+    }
+});
+
+app.post('/deleteReview', isUserAuthenticated, async (req, res) => {
+    let reviewId = req.body.reviewId;
+    let rawgGameId = req.body.rawg_game_id;
+    let userId = req.session.userId;
+
+    try {
+        let sql = `DELETE FROM reviews
+                   WHERE id = ?
+                   AND user_id = ?`;
+
+        await pool.query(sql, [reviewId, userId]);
+
+        res.redirect(`/gameInfo?gameId=${rawgGameId}`);
+
+    } catch (err) {
+        console.error("Delete review error:", err);
+        res.status(500).send("Delete review error!");
     }
 });
 
