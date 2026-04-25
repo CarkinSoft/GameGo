@@ -35,22 +35,15 @@ function isUserAuthenticated(req, res, next) {
     }
 }
 
-app.use((req, res, next) => {
-    res.locals.authenticated = req.session.authenticated || false;
-    res.locals.userId = req.session.userId || 0;
-    res.locals.username = req.session.username || "";
-    res.locals.displayName = req.session.displayName || req.session.username || "";
-    res.locals.profileImage = req.session.profileImage || "/img/defaultphoto.jpeg";
-    res.locals.isAdmin = req.session.isAdmin || 0;
-    next();
-});
-
 // Landing page
 app.get('/', (req, res) => {
     if (req.session.authenticated) {
         res.redirect('/home');
     } else {
-        res.render('landing.ejs');
+        res.render('landing.ejs', {
+            authenticated: false,
+            username: ""
+        });
     }
 });
 
@@ -59,7 +52,10 @@ app.get('/signup', (req, res) => {
     if (req.session.authenticated) {
         res.redirect('/home');
     } else {
-        res.render('signup.ejs');
+        res.render('signup.ejs', {
+            authenticated: false,
+            username: ""
+        });
     }
 });
 
@@ -71,12 +67,20 @@ app.post('/signup', async (req, res) => {
     try {
         if (!username || username.trim() == "") {
             let signupError = "Error: username cannot be blank";
-            return res.render("signup.ejs", { signupError });
+            return res.render("signup.ejs", {
+                signupError,
+                authenticated: false,
+                username: ""
+            });
         }
 
         if (!password || password.trim() == "") {
             let signupError = "Error: password cannot be blank";
-            return res.render("signup.ejs", { signupError });
+            return res.render("signup.ejs", {
+                signupError,
+                authenticated: false,
+                username: ""
+            });
         }
 
         username = username.trim();
@@ -84,13 +88,16 @@ app.post('/signup', async (req, res) => {
         let sql = `SELECT username
                    FROM users
                    WHERE username = ?`;
-        let sqlParams = [username];
 
-        const [rows] = await pool.query(sql, sqlParams);
+        const [rows] = await pool.query(sql, [username]);
 
         if (rows.length > 0) {
             let signupError = "Error: username already exists";
-            return res.render("signup.ejs", { signupError });
+            return res.render("signup.ejs", {
+                signupError,
+                authenticated: false,
+                username: ""
+            });
         }
 
         let hashedPassword = await bcrypt.hash(password, 10);
@@ -98,7 +105,8 @@ app.post('/signup', async (req, res) => {
         sql = `INSERT INTO users
                (username, password, display_name, profile_image, bio, featured_games, is_admin)
                VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        sqlParams = [
+
+        let sqlParams = [
             username,
             hashedPassword,
             username,
@@ -111,12 +119,20 @@ app.post('/signup', async (req, res) => {
         await pool.query(sql, sqlParams);
 
         let signupSuccess = "Account created successfully! Please log in.";
-        res.render("landing.ejs", { signupSuccess });
+        res.render("landing.ejs", {
+            signupSuccess,
+            authenticated: false,
+            username: ""
+        });
 
     } catch (err) {
         console.error("Database error:", err);
         let signupError = "Error: database error";
-        res.render("signup.ejs", { signupError });
+        res.render("signup.ejs", {
+            signupError,
+            authenticated: false,
+            username: ""
+        });
     }
 });
 
@@ -128,26 +144,37 @@ app.post('/login', async (req, res) => {
     try {
         if (!username || username.trim() == "") {
             let loginError = "Error: username cannot be blank";
-            return res.render("landing.ejs", { loginError });
+            return res.render("landing.ejs", {
+                loginError,
+                authenticated: false,
+                username: ""
+            });
         }
 
         if (!password || password.trim() == "") {
             let loginError = "Error: password cannot be blank";
-            return res.render("landing.ejs", { loginError });
+            return res.render("landing.ejs", {
+                loginError,
+                authenticated: false,
+                username: ""
+            });
         }
 
         username = username.trim();
 
-        let sql = `SELECT id, username, password, display_name, profile_image, is_admin
+        let sql = `SELECT id, username, password
                    FROM users
                    WHERE username = ?`;
-        let sqlParams = [username];
 
-        const [rows] = await pool.query(sql, sqlParams);
+        const [rows] = await pool.query(sql, [username]);
 
         if (rows.length == 0) {
             let loginError = "Error: invalid username or password";
-            return res.render("landing.ejs", { loginError });
+            return res.render("landing.ejs", {
+                loginError,
+                authenticated: false,
+                username: ""
+            });
         }
 
         let hashedPassword = rows[0].password;
@@ -155,22 +182,27 @@ app.post('/login', async (req, res) => {
 
         if (!match) {
             let loginError = "Error: invalid username or password";
-            return res.render("landing.ejs", { loginError });
+            return res.render("landing.ejs", {
+                loginError,
+                authenticated: false,
+                username: ""
+            });
         }
 
         req.session.authenticated = true;
         req.session.userId = rows[0].id;
         req.session.username = rows[0].username;
-        req.session.displayName = rows[0].display_name;
-        req.session.profileImage = rows[0].profile_image || "/img/defaultphoto.jpeg";
-        req.session.isAdmin = rows[0].is_admin;
 
         res.redirect('/home');
 
     } catch (err) {
         console.error("Database error:", err);
         let loginError = "Error: database error";
-        res.render("landing.ejs", { loginError });
+        res.render("landing.ejs", {
+            loginError,
+            authenticated: false,
+            username: ""
+        });
     }
 });
 
@@ -182,7 +214,10 @@ app.get('/logout', (req, res) => {
 
 // Home page
 app.get('/home', isUserAuthenticated, (req, res) => {
-    res.render('home.ejs');
+    res.render('home.ejs', {
+        authenticated: req.session.authenticated,
+        username: req.session.username
+    });
 });
 
 // Database test
@@ -215,7 +250,7 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
     }
 
     try {
-        let url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(gameTitle)}&page_size=${pageSize}&page=${currentPage}`;
+        let url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${gameTitle}&page_size=${pageSize}&page=${currentPage}`;
 
         let response = await fetch(url);
         let data = await response.json();
@@ -229,7 +264,9 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
             gameTitle,
             games: data.results || [],
             currentPage,
-            totalPages
+            totalPages,
+            authenticated: req.session.authenticated,
+            username: req.session.username
         });
 
     } catch (err) {
@@ -238,6 +275,7 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
     }
 });
 
+// Game page
 app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
     let gameId = req.query.gameId;
     let userId = req.session.userId;
@@ -277,14 +315,24 @@ app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
         let [savedRows] = await pool.query(savedSql, [userId, gameId]);
         let [myReviewRows] = await pool.query(myReviewSql, [userId, gameId]);
 
-        let savedGame = savedRows.length > 0 ? savedRows[0] : null;
-        let currentUserReview = myReviewRows.length > 0 ? myReviewRows[0] : null;
+        let savedGame = null;
+        if (savedRows.length > 0) {
+            savedGame = savedRows[0];
+        }
+
+        let currentUserReview = null;
+        if (myReviewRows.length > 0) {
+            currentUserReview = myReviewRows[0];
+        }
 
         res.render('game.ejs', {
             game,
             reviews,
             savedGame,
-            currentUserReview
+            currentUserReview,
+            userId: req.session.userId,
+            authenticated: req.session.authenticated,
+            username: req.session.username
         });
 
     } catch (err) {
@@ -375,7 +423,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
                 genreSlug = matchedGenre.slug;
             }
 
-            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&genres=${encodeURIComponent(genreSlug)}&ordering=-rating&page_size=20`;
+            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&genres=${genreSlug}&ordering=-rating&page_size=20`;
             let recommendedResponse = await fetch(recommendedUrl);
             let recommendedData = await recommendedResponse.json();
 
@@ -391,7 +439,9 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
             topRatedGames,
             recentGames,
             recommendedGames,
-            topGenre
+            topGenre,
+            authenticated: req.session.authenticated,
+            username: req.session.username
         });
 
     } catch (err) {
@@ -400,7 +450,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
     }
 });
 
-// Save or update game from game page
+// Save or update game
 app.post('/saveGame', async (req, res) => {
     if (!req.session.userId) {
         return res.json({
@@ -427,9 +477,8 @@ app.post('/saveGame', async (req, res) => {
                    FROM saved_games
                    WHERE user_id = ?
                    AND rawg_game_id = ?`;
-        let sqlParams = [userId, rawgGameId];
 
-        const [rows] = await pool.query(sql, sqlParams);
+        const [rows] = await pool.query(sql, [userId, rawgGameId]);
 
         if (rows.length > 0) {
             sql = `UPDATE saved_games
@@ -441,7 +490,7 @@ app.post('/saveGame', async (req, res) => {
                    WHERE user_id = ?
                    AND rawg_game_id = ?`;
 
-            sqlParams = [title, coverImage, genres, status, isFavorite, userId, rawgGameId];
+            let sqlParams = [title, coverImage, genres, status, isFavorite, userId, rawgGameId];
 
             await pool.query(sql, sqlParams);
 
@@ -453,7 +502,8 @@ app.post('/saveGame', async (req, res) => {
         sql = `INSERT INTO saved_games
                (user_id, rawg_game_id, title, cover_image, genres, status, is_favorite)
                VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        sqlParams = [userId, rawgGameId, title, coverImage, genres, status, isFavorite];
+
+        let sqlParams = [userId, rawgGameId, title, coverImage, genres, status, isFavorite];
 
         await pool.query(sql, sqlParams);
 
@@ -469,7 +519,7 @@ app.post('/saveGame', async (req, res) => {
     }
 });
 
-// Library page with filters and stats
+// Library page
 app.get('/library', isUserAuthenticated, async (req, res) => {
     let userId = req.session.userId;
     let view = req.query.view || "all";
@@ -524,7 +574,9 @@ app.get('/library', isUserAuthenticated, async (req, res) => {
             view,
             status,
             sort,
-            libraryMessage
+            libraryMessage,
+            authenticated: req.session.authenticated,
+            username: req.session.username
         });
 
     } catch (err) {
@@ -533,7 +585,7 @@ app.get('/library', isUserAuthenticated, async (req, res) => {
     }
 });
 
-// Update saved game from library page
+// Update saved game
 app.post('/updateSavedGame', isUserAuthenticated, async (req, res) => {
     let savedGameId = req.body.savedGameId;
     let status = req.body.status;
@@ -543,7 +595,7 @@ app.post('/updateSavedGame', isUserAuthenticated, async (req, res) => {
 
     try {
         if (!status || status.trim() == "") {
-            return res.redirect('/library?libraryMessage=' + encodeURIComponent('Please select a status.'));
+            return res.redirect('/library?libraryMessage=Please select a status.');
         }
 
         let sql = `UPDATE saved_games
@@ -555,11 +607,11 @@ app.post('/updateSavedGame', isUserAuthenticated, async (req, res) => {
 
         await pool.query(sql, sqlParams);
 
-        res.redirect('/library?libraryMessage=' + encodeURIComponent('Saved game updated successfully.'));
+        res.redirect('/library?libraryMessage=Saved game updated successfully.');
 
     } catch (err) {
         console.error("Database error:", err);
-        res.redirect('/library?libraryMessage=' + encodeURIComponent('Database error while updating game.'));
+        res.redirect('/library?libraryMessage=Database error while updating game.');
     }
 });
 
@@ -575,11 +627,11 @@ app.post('/deleteSavedGame', isUserAuthenticated, async (req, res) => {
 
         await pool.query(sql, [savedGameId, userId]);
 
-        res.redirect('/library?libraryMessage=' + encodeURIComponent('Game removed from library.'));
+        res.redirect('/library?libraryMessage=Game removed from library.');
 
     } catch (err) {
         console.error("Database error:", err);
-        res.redirect('/library?libraryMessage=' + encodeURIComponent('Database error while removing game.'));
+        res.redirect('/library?libraryMessage=Database error while removing game.');
     }
 });
 
@@ -590,14 +642,18 @@ app.get('/trending', isUserAuthenticated, async (req, res) => {
         let response = await fetch(url);
         let dealData = await response.json();
 
-        res.render('trending.ejs', { deals: dealData });
+        res.render('trending.ejs', {
+            deals: dealData,
+            authenticated: req.session.authenticated,
+            username: req.session.username
+        });
     } catch (err) {
         console.error("Error fetching trending games:", err);
         res.status(500).send("Error fetching trending games!");
     }
 });
 
-// Adding a review
+// Add review
 app.post('/addReview', async (req, res) => {
     if (!req.session.userId) {
         return res.json({
@@ -646,6 +702,7 @@ app.post('/addReview', async (req, res) => {
         let sql = `INSERT INTO reviews
                    (user_id, rawg_game_id, rating, review_title, review_text)
                    VALUES (?, ?, ?, ?, ?)`;
+
         let sqlParams = [userId, rawgGameId, rating, reviewTitle, reviewText];
 
         await pool.query(sql, sqlParams);
@@ -662,10 +719,12 @@ app.post('/addReview', async (req, res) => {
     }
 });
 
+// Profile shortcut
 app.get('/profile', isUserAuthenticated, (req, res) => {
     res.redirect(`/user/${req.session.userId}`);
 });
 
+// View user profile
 app.get('/user/:userId', isUserAuthenticated, async (req, res) => {
     let profileUserId = req.params.userId;
 
@@ -722,7 +781,9 @@ app.get('/user/:userId', isUserAuthenticated, async (req, res) => {
             isOwnProfile,
             featuredGames,
             stats: statsRows[0],
-            reviewStats: reviewStatsRows[0]
+            reviewStats: reviewStatsRows[0],
+            authenticated: req.session.authenticated,
+            username: req.session.username
         });
 
     } catch (err) {
@@ -731,6 +792,7 @@ app.get('/user/:userId', isUserAuthenticated, async (req, res) => {
     }
 });
 
+// Edit profile page
 app.get('/editProfile', isUserAuthenticated, async (req, res) => {
     let userId = req.session.userId;
     let profileSuccess = req.query.profileSuccess || "";
@@ -763,7 +825,9 @@ app.get('/editProfile', isUserAuthenticated, async (req, res) => {
             savedGames,
             selectedFeaturedGames,
             profileSuccess,
-            profileError
+            profileError,
+            authenticated: req.session.authenticated,
+            username: req.session.username
         });
 
     } catch (err) {
@@ -772,6 +836,7 @@ app.get('/editProfile', isUserAuthenticated, async (req, res) => {
     }
 });
 
+// Update profile
 app.post('/editProfile', isUserAuthenticated, async (req, res) => {
     let userId = req.session.userId;
     let displayName = req.body.display_name;
@@ -781,7 +846,7 @@ app.post('/editProfile', isUserAuthenticated, async (req, res) => {
 
     try {
         if (!displayName || displayName.trim() == "") {
-            return res.redirect('/editProfile?profileError=' + encodeURIComponent('Display name cannot be blank.'));
+            return res.redirect('/editProfile?profileError=Display name cannot be blank.');
         }
 
         displayName = displayName.trim();
@@ -810,17 +875,15 @@ app.post('/editProfile', isUserAuthenticated, async (req, res) => {
 
         await pool.query(sql, sqlParams);
 
-        req.session.displayName = displayName;
-        req.session.profileImage = profileImage;
-
-        res.redirect('/editProfile?profileSuccess=' + encodeURIComponent('Profile updated successfully.'));
+        res.redirect('/editProfile?profileSuccess=Profile updated successfully.');
 
     } catch (err) {
         console.error("Profile update error:", err);
-        res.redirect('/editProfile?profileError=' + encodeURIComponent('Database error while updating profile.'));
+        res.redirect('/editProfile?profileError=Database error while updating profile.');
     }
 });
 
+// Edit review page
 app.get('/editReview', isUserAuthenticated, async (req, res) => {
     let reviewId = req.query.reviewId;
     let userId = req.session.userId;
@@ -838,7 +901,12 @@ app.get('/editReview', isUserAuthenticated, async (req, res) => {
         }
 
         let reviewInfo = rows[0];
-        res.render('editReview.ejs', { reviewInfo });
+
+        res.render('editReview.ejs', {
+            reviewInfo,
+            authenticated: req.session.authenticated,
+            username: req.session.username
+        });
 
     } catch (err) {
         console.error("Edit review route error:", err);
@@ -846,6 +914,7 @@ app.get('/editReview', isUserAuthenticated, async (req, res) => {
     }
 });
 
+// Update review
 app.post('/updateReview', isUserAuthenticated, async (req, res) => {
     let reviewId = req.body.reviewId;
     let rawgGameId = req.body.rawg_game_id;
@@ -884,6 +953,7 @@ app.post('/updateReview', isUserAuthenticated, async (req, res) => {
     }
 });
 
+// Delete review
 app.post('/deleteReview', isUserAuthenticated, async (req, res) => {
     let reviewId = req.body.reviewId;
     let rawgGameId = req.body.rawg_game_id;
