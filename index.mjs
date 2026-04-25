@@ -210,13 +210,15 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
 
 // Browse page
 app.get('/browse', isUserAuthenticated, async (req, res) => {
+    let userId = req.session.userId;
+
     try {
         let today = new Date().toISOString().split("T")[0];
         let yearStart = `${new Date().getFullYear()}-01-01`;
 
-        let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=8`;
-        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=8`;
-        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=8`;
+        let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=12`;
+        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=12`;
+        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=12`;
 
         let [popularResponse, topRatedResponse, recentResponse] = await Promise.all([
             fetch(popularUrl),
@@ -228,63 +230,88 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let topRatedData = await topRatedResponse.json();
         let recentData = await recentResponse.json();
 
-        let sql = `SELECT title, cover_image, rawg_game_id, status, is_favorite
-                   FROM saved_games
-                   WHERE user_id = ?
-                   AND is_favorite = 1
-                   ORDER BY created_at DESC
-                   LIMIT 8`;
+        let popularGames = popularData.results || [];
+        let topRatedGames = topRatedData.results || [];
+        let recentGames = recentData.results || [];
 
-        let [favoriteGames] = await pool.query(sql, [req.session.userId]);
+        let savedSql = `SELECT rawg_game_id, genres
+                        FROM saved_games
+                        WHERE user_id = ?`;
+
+        let [savedRows] = await pool.query(savedSql, [userId]);
+
+        let savedGameIds = new Set();
+        let genreCounts = {};
+
+        for (let row of savedRows) {
+            savedGameIds.add(String(row.rawg_game_id));
+
+            if (row.genres) {
+                let genreList = row.genres.split(",");
+
+                for (let genre of genreList) {
+                    let cleanGenre = genre.trim();
+
+                    if (cleanGenre != "") {
+                        if (!genreCounts[cleanGenre]) {
+                            genreCounts[cleanGenre] = 0;
+                        }
+                        genreCounts[cleanGenre]++;
+                    }
+                }
+            }
+        }
+
+        let topGenre = "";
+        let recommendedGames = [];
+
+        if (Object.keys(genreCounts).length > 0) {
+            let sortedGenres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]);
+            topGenre = sortedGenres[0][0];
+
+            let genreSlug = topGenre.toLowerCase()
+                .replace(/&/g, "and")
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "");
+
+            let genresUrl = `https://api.rawg.io/api/genres?key=${RAWG_API_KEY}&page_size=40`;
+            let genresResponse = await fetch(genresUrl);
+            let genresData = await genresResponse.json();
+
+            let matchedGenre = null;
+
+            if (genresData.results) {
+                matchedGenre = genresData.results.find(genre =>
+                    genre.name.toLowerCase() == topGenre.toLowerCase()
+                );
+            }
+
+            if (matchedGenre) {
+                genreSlug = matchedGenre.slug;
+            }
+
+            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&genres=${encodeURIComponent(genreSlug)}&ordering=-rating&page_size=20`;
+            let recommendedResponse = await fetch(recommendedUrl);
+            let recommendedData = await recommendedResponse.json();
+
+            if (recommendedData.results) {
+                recommendedGames = recommendedData.results.filter(game =>
+                    !savedGameIds.has(String(game.id))
+                ).slice(0, 12);
+            }
+        }
 
         res.render('browse.ejs', {
-            popularGames: popularData.results || [],
-            topRatedGames: topRatedData.results || [],
-            recentGames: recentData.results || [],
-            favoriteGames
+            popularGames,
+            topRatedGames,
+            recentGames,
+            recommendedGames,
+            topGenre
         });
 
     } catch (err) {
         console.error("Browse page error:", err);
         res.status(500).send("Browse page error!");
-    }
-});
-
-// Display game info
-app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
-    let gameId = req.query.gameId;
-    let userId = req.session.userId;
-
-    try {
-        let url = `https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_KEY}`;
-
-        let response = await fetch(url);
-        let game = await response.json();
-
-        let reviewSql = `SELECT r.id, r.rating, r.review_title, r.review_text, r.created_at, u.username
-                         FROM reviews r
-                         JOIN users u ON r.user_id = u.id
-                         WHERE r.rawg_game_id = ?
-                         ORDER BY r.created_at DESC`;
-
-        let savedSql = `SELECT id, rawg_game_id, title, cover_image, genres, status, is_favorite, created_at
-                        FROM saved_games
-                        WHERE user_id = ?
-                        AND rawg_game_id = ?`;
-
-        let [reviews] = await pool.query(reviewSql, [gameId]);
-        let [savedRows] = await pool.query(savedSql, [userId, gameId]);
-
-        let savedGame = null;
-        if (savedRows.length > 0) {
-            savedGame = savedRows[0];
-        }
-
-        res.render('game.ejs', { game, reviews, savedGame });
-
-    } catch (err) {
-        console.error("RAWG API error:", err);
-        res.status(500).send("RAWG API error!");
     }
 });
 
