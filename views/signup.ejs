@@ -7,9 +7,11 @@
     <div class="container mt-5">
         <h1>Create Account</h1>
 
-        <div id="feedbackDiv" class="mb-2"></div>
+        <% if (typeof(signupError) !== "undefined") { %>
+            <div class="error-message mb-3"><%= signupError %></div>
+        <% } %>
 
-        <form id="signupForm" action="/signup" method="POST" class="mt-4">
+        <form action="/signup" method="POST" class="mt-4">
             <div class="mb-3">
                 <label for="username">Username:</label>
                 <input type="text" name="username" id="username" class="form-control">
@@ -26,6 +28,5 @@
     </div>
 
     <%- include("partials/footer.ejs") %>
-    <script src="/js/signup.js"></script>
 </body>
 </html>

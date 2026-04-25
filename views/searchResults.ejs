@@ -18,18 +18,40 @@
             <p>No games found.</p>
         <% } %>
 
-        <% for (let game of games) { %>
-            <div class="card mb-3 p-3">
-                <h3><%= game.name %></h3>
+        <div class="row">
+            <% for (let game of games) { %>
+                <div class="col-md-4 mb-4">
+                    <a href="/gameInfo?gameId=<%= game.id %>" class="game-card-link d-block">
+                        <div class="card p-3 h-100 search-card">
+                            <h3><%= game.name %></h3>
 
-                <% if (game.background_image) { %>
-                    <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 250px;">
+                            <% if (game.background_image) { %>
+                                <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                            <% } %>
+
+                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                        </div>
+                    </a>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+            <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+                <% if (currentPage > 1) { %>
+                    <a class="btn btn-outline-primary" href="/searchGame?gameTitle=<%= encodeURIComponent(gameTitle) %>&page=<%= currentPage - 1 %>">
+                        Previous
+                    </a>
                 <% } %>
-                <p>Released: <%= game.released || "N/A" %></p>
 
-                <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary">
-                    View Game
-                </a>
+                <span>Page <%= currentPage %> of <%= totalPages %></span>
+
+                <% if (currentPage < totalPages) { %>
+                    <a class="btn btn-outline-primary" href="/searchGame?gameTitle=<%= encodeURIComponent(gameTitle) %>&page=<%= currentPage + 1 %>">
+                        Next
+                    </a>
+                <% } %>
             </div>
         <% } %>
     </main>
