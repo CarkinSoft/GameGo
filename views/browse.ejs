@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<body>
+    <header>
+        <h1>Browse Games</h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <section class="card mb-4 p-3">
+            <h2>Your Favorite Games</h2>
+
+            <% if (!favoriteGames || favoriteGames.length === 0) { %>
+                <p>You do not have any favorited games yet.</p>
+            <% } %>
+
+            <% if (favoriteGames && favoriteGames.length > 0) { %>
+                <% for (let game of favoriteGames) { %>
+                    <div class="card mb-3 p-3">
+                        <h3><%= game.title %></h3>
+
+                        <% if (game.cover_image) { %>
+                            <img src="<%= game.cover_image %>" alt="<%= game.title %>" style="max-width: 250px;">
+                        <% } %>
+
+                        <p><strong>Status:</strong> <%= game.status %></p>
+                        <p><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
+
+                        <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="btn btn-primary btn-sm">
+                            View Game
+                        </a>
+                    </div>
+                <% } %>
+            <% } %>
+        </section>
+
+        <section class="card mb-4 p-3">
+            <h2>Popular Games</h2>
+
+            <% for (let game of popularGames) { %>
+                <div class="card mb-3 p-3">
+                    <h3><%= game.name %></h3>
+
+                    <% if (game.background_image) { %>
+                        <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 250px;">
+                    <% } %>
+
+                    <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                    <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+
+                    <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary btn-sm">
+                        View Game
+                    </a>
+                </div>
+            <% } %>
+        </section>
+
+        <section class="card mb-4 p-3">
+            <h2>Top Rated Games</h2>
+
+            <% for (let game of topRatedGames) { %>
+                <div class="card mb-3 p-3">
+                    <h3><%= game.name %></h3>
+
+                    <% if (game.background_image) { %>
+                        <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 250px;">
+                    <% } %>
+
+                    <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                    <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+
+                    <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary btn-sm">
+                        View Game
+                    </a>
+                </div>
+            <% } %>
+        </section>
+
+        <section class="card mb-4 p-3">
+            <h2>Recent Releases</h2>
+
+            <% for (let game of recentGames) { %>
+                <div class="card mb-3 p-3">
+                    <h3><%= game.name %></h3>
+
+                    <% if (game.background_image) { %>
+                        <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 250px;">
+                    <% } %>
+
+                    <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                    <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+
+                    <a href="/gameInfo?gameId=<%= game.id %>" class="btn btn-primary btn-sm">
+                        View Game
+                    </a>
+                </div>
+            <% } %>
+        </section>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>

@@ -200,7 +200,7 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
         let response = await fetch(url);
         let data = await response.json();
 
-        res.render('searchResults.ejs', { gameTitle, games: data.results });
+        res.render('searchResults.ejs', { gameTitle, games: data.results || [] });
 
     } catch (err) {
         console.error("RAWG API error:", err);
@@ -208,9 +208,52 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
     }
 });
 
+// Browse page
+app.get('/browse', isUserAuthenticated, async (req, res) => {
+    try {
+        let today = new Date().toISOString().split("T")[0];
+        let yearStart = `${new Date().getFullYear()}-01-01`;
+
+        let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=8`;
+        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=8`;
+        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=8`;
+
+        let [popularResponse, topRatedResponse, recentResponse] = await Promise.all([
+            fetch(popularUrl),
+            fetch(topRatedUrl),
+            fetch(recentUrl)
+        ]);
+
+        let popularData = await popularResponse.json();
+        let topRatedData = await topRatedResponse.json();
+        let recentData = await recentResponse.json();
+
+        let sql = `SELECT title, cover_image, rawg_game_id, status, is_favorite
+                   FROM saved_games
+                   WHERE user_id = ?
+                   AND is_favorite = 1
+                   ORDER BY created_at DESC
+                   LIMIT 8`;
+
+        let [favoriteGames] = await pool.query(sql, [req.session.userId]);
+
+        res.render('browse.ejs', {
+            popularGames: popularData.results || [],
+            topRatedGames: topRatedData.results || [],
+            recentGames: recentData.results || [],
+            favoriteGames
+        });
+
+    } catch (err) {
+        console.error("Browse page error:", err);
+        res.status(500).send("Browse page error!");
+    }
+});
+
 // Display game info
 app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
     let gameId = req.query.gameId;
+    let userId = req.session.userId;
 
     try {
         let url = `https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_KEY}`;
@@ -218,15 +261,26 @@ app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
         let response = await fetch(url);
         let game = await response.json();
 
-        let sql = `SELECT r.id, r.rating, r.review_title, r.review_text, r.created_at, u.username
-                   FROM reviews r
-                   JOIN users u ON r.user_id = u.id
-                   WHERE r.rawg_game_id = ?
-                   ORDER BY r.created_at DESC`;
+        let reviewSql = `SELECT r.id, r.rating, r.review_title, r.review_text, r.created_at, u.username
+                         FROM reviews r
+                         JOIN users u ON r.user_id = u.id
+                         WHERE r.rawg_game_id = ?
+                         ORDER BY r.created_at DESC`;
 
-        let [reviews] = await pool.query(sql, [gameId]);
+        let savedSql = `SELECT id, rawg_game_id, title, cover_image, genres, status, is_favorite, created_at
+                        FROM saved_games
+                        WHERE user_id = ?
+                        AND rawg_game_id = ?`;
 
-        res.render('game.ejs', { game, reviews });
+        let [reviews] = await pool.query(reviewSql, [gameId]);
+        let [savedRows] = await pool.query(savedSql, [userId, gameId]);
+
+        let savedGame = null;
+        if (savedRows.length > 0) {
+            savedGame = savedRows[0];
+        }
+
+        res.render('game.ejs', { game, reviews, savedGame });
 
     } catch (err) {
         console.error("RAWG API error:", err);
@@ -234,7 +288,7 @@ app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
     }
 });
 
-// Save game to library
+// Save or update game from game page
 app.post('/saveGame', async (req, res) => {
     if (!req.session.userId) {
         return res.json({
@@ -251,6 +305,12 @@ app.post('/saveGame', async (req, res) => {
     let userId = req.session.userId;
 
     try {
+        if (!status || status.trim() == "") {
+            return res.json({
+                error: "Error: please select a status"
+            });
+        }
+
         let sql = `SELECT id
                    FROM saved_games
                    WHERE user_id = ?
@@ -297,24 +357,117 @@ app.post('/saveGame', async (req, res) => {
     }
 });
 
-// Library page
+// Library page with filters and stats
 app.get('/library', isUserAuthenticated, async (req, res) => {
     let userId = req.session.userId;
+    let view = req.query.view || "all";
+    let status = req.query.status || "";
+    let sort = req.query.sort || "newest";
+    let libraryMessage = req.query.libraryMessage || "";
 
     try {
-        let sql = `SELECT id, rawg_game_id, title, cover_image, genres, status, is_favorite, created_at
-                   FROM saved_games
-                   WHERE user_id = ?
-                   ORDER BY created_at DESC`;
+        let whereParts = [`user_id = ?`];
         let sqlParams = [userId];
 
-        const [rows] = await pool.query(sql, sqlParams);
+        if (view == "favorites") {
+            whereParts.push(`is_favorite = 1`);
+        }
 
-        res.render('library.ejs', { games: rows });
+        if (status != "") {
+            whereParts.push(`status = ?`);
+            sqlParams.push(status);
+        }
+
+        let orderBy = `created_at DESC`;
+        if (sort == "oldest") {
+            orderBy = `created_at ASC`;
+        } else if (sort == "title") {
+            orderBy = `title ASC`;
+        } else if (sort == "status") {
+            orderBy = `status ASC, title ASC`;
+        }
+
+        let gamesSql = `SELECT id, rawg_game_id, title, cover_image, genres, status, is_favorite, created_at
+                        FROM saved_games
+                        WHERE ${whereParts.join(" AND ")}
+                        ORDER BY ${orderBy}`;
+
+        let statsSql = `SELECT COUNT(*) totalGames,
+                               SUM(CASE WHEN is_favorite = 1 THEN 1 ELSE 0 END) favoriteCount,
+                               SUM(CASE WHEN status = 'Want to Play' THEN 1 ELSE 0 END) wantToPlayCount,
+                               SUM(CASE WHEN status = 'Playing' THEN 1 ELSE 0 END) playingCount,
+                               SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) completedCount,
+                               SUM(CASE WHEN status = 'Dropped' THEN 1 ELSE 0 END) droppedCount
+                        FROM saved_games
+                        WHERE user_id = ?`;
+
+        let [games] = await pool.query(gamesSql, sqlParams);
+        let [statsRows] = await pool.query(statsSql, [userId]);
+
+        let stats = statsRows[0];
+
+        res.render('library.ejs', {
+            games,
+            stats,
+            view,
+            status,
+            sort,
+            libraryMessage
+        });
 
     } catch (err) {
         console.error("Database error:", err);
         res.status(500).send("Database error!");
+    }
+});
+
+// Update saved game from library page
+app.post('/updateSavedGame', isUserAuthenticated, async (req, res) => {
+    let savedGameId = req.body.savedGameId;
+    let status = req.body.status;
+    let genres = req.body.genres;
+    let isFavorite = req.body.is_favorite ? 1 : 0;
+    let userId = req.session.userId;
+
+    try {
+        if (!status || status.trim() == "") {
+            return res.redirect('/library?libraryMessage=' + encodeURIComponent('Please select a status.'));
+        }
+
+        let sql = `UPDATE saved_games
+                   SET status = ?, genres = ?, is_favorite = ?
+                   WHERE id = ?
+                   AND user_id = ?`;
+
+        let sqlParams = [status, genres, isFavorite, savedGameId, userId];
+
+        await pool.query(sql, sqlParams);
+
+        res.redirect('/library?libraryMessage=' + encodeURIComponent('Saved game updated successfully.'));
+
+    } catch (err) {
+        console.error("Database error:", err);
+        res.redirect('/library?libraryMessage=' + encodeURIComponent('Database error while updating game.'));
+    }
+});
+
+// Delete saved game
+app.post('/deleteSavedGame', isUserAuthenticated, async (req, res) => {
+    let savedGameId = req.body.savedGameId;
+    let userId = req.session.userId;
+
+    try {
+        let sql = `DELETE FROM saved_games
+                   WHERE id = ?
+                   AND user_id = ?`;
+
+        await pool.query(sql, [savedGameId, userId]);
+
+        res.redirect('/library?libraryMessage=' + encodeURIComponent('Game removed from library.'));
+
+    } catch (err) {
+        console.error("Database error:", err);
+        res.redirect('/library?libraryMessage=' + encodeURIComponent('Database error while removing game.'));
     }
 });
 
