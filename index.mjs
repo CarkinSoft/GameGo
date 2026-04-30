@@ -40,10 +40,9 @@ app.get('/', (req, res) => {
     if (req.session.authenticated) {
         res.redirect('/home');
     } else {
-        res.render('landing.ejs', {
-            authenticated: false,
-            username: ""
-        });
+        let authenticated = false;
+        let username = "";
+        res.render('landing.ejs', { authenticated, username });
     }
 });
 
@@ -52,10 +51,9 @@ app.get('/signup', (req, res) => {
     if (req.session.authenticated) {
         res.redirect('/home');
     } else {
-        res.render('signup.ejs', {
-            authenticated: false,
-            username: ""
-        });
+        let authenticated = false;
+        let username = "";
+        res.render('signup.ejs', { authenticated, username });
     }
 });
 
@@ -67,20 +65,16 @@ app.post('/signup', async (req, res) => {
     try {
         if (!username || username.trim() == "") {
             let signupError = "Error: username cannot be blank";
-            return res.render("signup.ejs", {
-                signupError,
-                authenticated: false,
-                username: ""
-            });
+            let authenticated = false;
+            let currentUsername = "";
+            return res.render("signup.ejs", { signupError, authenticated, username: currentUsername });
         }
 
         if (!password || password.trim() == "") {
             let signupError = "Error: password cannot be blank";
-            return res.render("signup.ejs", {
-                signupError,
-                authenticated: false,
-                username: ""
-            });
+            let authenticated = false;
+            let currentUsername = "";
+            return res.render("signup.ejs", { signupError, authenticated, username: currentUsername });
         }
 
         username = username.trim();
@@ -93,11 +87,9 @@ app.post('/signup', async (req, res) => {
 
         if (rows.length > 0) {
             let signupError = "Error: username already exists";
-            return res.render("signup.ejs", {
-                signupError,
-                authenticated: false,
-                username: ""
-            });
+            let authenticated = false;
+            let currentUsername = "";
+            return res.render("signup.ejs", { signupError, authenticated, username: currentUsername });
         }
 
         let hashedPassword = await bcrypt.hash(password, 10);
@@ -106,33 +98,21 @@ app.post('/signup', async (req, res) => {
                (username, password, display_name, profile_image, bio, featured_games, is_admin)
                VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-        let sqlParams = [
-            username,
-            hashedPassword,
-            username,
-            "/img/defaultphoto.jpeg",
-            "",
-            "",
-            0
-        ];
+        let sqlParams = [username, hashedPassword, username, "/img/defaultphoto.jpeg", "", "", 0];
 
         await pool.query(sql, sqlParams);
 
         let signupSuccess = "Account created successfully! Please log in.";
-        res.render("landing.ejs", {
-            signupSuccess,
-            authenticated: false,
-            username: ""
-        });
+        let authenticated = false;
+        let currentUsername = "";
+        res.render("landing.ejs", { signupSuccess, authenticated, username: currentUsername });
 
     } catch (err) {
         console.error("Database error:", err);
         let signupError = "Error: database error";
-        res.render("signup.ejs", {
-            signupError,
-            authenticated: false,
-            username: ""
-        });
+        let authenticated = false;
+        let currentUsername = "";
+        res.render("signup.ejs", { signupError, authenticated, username: currentUsername });
     }
 });
 
@@ -144,20 +124,16 @@ app.post('/login', async (req, res) => {
     try {
         if (!username || username.trim() == "") {
             let loginError = "Error: username cannot be blank";
-            return res.render("landing.ejs", {
-                loginError,
-                authenticated: false,
-                username: ""
-            });
+            let authenticated = false;
+            let currentUsername = "";
+            return res.render("landing.ejs", { loginError, authenticated, username: currentUsername });
         }
 
         if (!password || password.trim() == "") {
             let loginError = "Error: password cannot be blank";
-            return res.render("landing.ejs", {
-                loginError,
-                authenticated: false,
-                username: ""
-            });
+            let authenticated = false;
+            let currentUsername = "";
+            return res.render("landing.ejs", { loginError, authenticated, username: currentUsername });
         }
 
         username = username.trim();
@@ -170,11 +146,9 @@ app.post('/login', async (req, res) => {
 
         if (rows.length == 0) {
             let loginError = "Error: invalid username or password";
-            return res.render("landing.ejs", {
-                loginError,
-                authenticated: false,
-                username: ""
-            });
+            let authenticated = false;
+            let currentUsername = "";
+            return res.render("landing.ejs", { loginError, authenticated, username: currentUsername });
         }
 
         let hashedPassword = rows[0].password;
@@ -182,11 +156,9 @@ app.post('/login', async (req, res) => {
 
         if (!match) {
             let loginError = "Error: invalid username or password";
-            return res.render("landing.ejs", {
-                loginError,
-                authenticated: false,
-                username: ""
-            });
+            let authenticated = false;
+            let currentUsername = "";
+            return res.render("landing.ejs", { loginError, authenticated, username: currentUsername });
         }
 
         req.session.authenticated = true;
@@ -198,11 +170,9 @@ app.post('/login', async (req, res) => {
     } catch (err) {
         console.error("Database error:", err);
         let loginError = "Error: database error";
-        res.render("landing.ejs", {
-            loginError,
-            authenticated: false,
-            username: ""
-        });
+        let authenticated = false;
+        let currentUsername = "";
+        res.render("landing.ejs", { loginError, authenticated, username: currentUsername });
     }
 });
 
@@ -214,18 +184,15 @@ app.get('/logout', (req, res) => {
 
 // Home page
 app.get('/home', isUserAuthenticated, (req, res) => {
-    res.render('home.ejs', {
-        authenticated: req.session.authenticated,
-        username: req.session.username
-    });
+    let authenticated = req.session.authenticated;
+    let username = req.session.username;
+    res.render('home.ejs', { authenticated, username });
 });
 
 // Database test
 app.get('/dbTest', async (req, res) => {
     try {
-        const [rows] = await pool.query(
-            "SELECT id, username, password, is_admin, created_at FROM users"
-        );
+        const [rows] = await pool.query("SELECT id, username, password, is_admin, created_at FROM users");
 
         res.send({
             message: "Users table working correctly",
@@ -260,14 +227,11 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
             totalPages = 1;
         }
 
-        res.render('searchResults.ejs', {
-            gameTitle,
-            games: data.results || [],
-            currentPage,
-            totalPages,
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        let games = data.results || [];
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
+
+        res.render('searchResults.ejs', { gameTitle, games, currentPage, totalPages, authenticated, username });
 
     } catch (err) {
         console.error("RAWG API error:", err);
@@ -286,16 +250,8 @@ app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
         let response = await fetch(url);
         let game = await response.json();
 
-        let reviewSql = `SELECT r.id,
-                                r.user_id,
-                                r.rawg_game_id,
-                                r.rating,
-                                r.review_title,
-                                r.review_text,
-                                r.created_at,
-                                u.username,
-                                u.display_name,
-                                u.profile_image
+        let reviewSql = `SELECT r.id, r.user_id, r.rawg_game_id, r.rating, r.review_title, r.review_text, r.created_at,
+                                u.username, u.display_name, u.profile_image
                          FROM reviews r
                          JOIN users u ON r.user_id = u.id
                          WHERE r.rawg_game_id = ?
@@ -325,15 +281,10 @@ app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
             currentUserReview = myReviewRows[0];
         }
 
-        res.render('game.ejs', {
-            game,
-            reviews,
-            savedGame,
-            currentUserReview,
-            userId: req.session.userId,
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
+
+        res.render('game.ejs', { game, reviews, savedGame, currentUserReview, userId, authenticated, username });
 
     } catch (err) {
         console.error("RAWG API error:", err);
@@ -350,21 +301,18 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let yearStart = `${new Date().getFullYear()}-01-01`;
 
         let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=12`;
-        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=12`;
-        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=12`;
-
-        let [popularResponse, topRatedResponse, recentResponse] = await Promise.all([
-            fetch(popularUrl),
-            fetch(topRatedUrl),
-            fetch(recentUrl)
-        ]);
-
+        let popularResponse = await fetch(popularUrl);
         let popularData = await popularResponse.json();
-        let topRatedData = await topRatedResponse.json();
-        let recentData = await recentResponse.json();
-
         let popularGames = popularData.results || [];
+
+        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=12`;
+        let topRatedResponse = await fetch(topRatedUrl);
+        let topRatedData = await topRatedResponse.json();
         let topRatedGames = topRatedData.results || [];
+
+        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=12`;
+        let recentResponse = await fetch(recentUrl);
+        let recentData = await recentResponse.json();
         let recentGames = recentData.results || [];
 
         let savedSql = `SELECT rawg_game_id, genres
@@ -373,76 +321,77 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
 
         let [savedRows] = await pool.query(savedSql, [userId]);
 
-        let savedGameIds = new Set();
-        let genreCounts = {};
+        let savedGameIds = [];
+        let genreNames = [];
+        let genreTotals = [];
+        let topGenre = "";
+        let recommendedGames = [];
 
-        for (let row of savedRows) {
-            savedGameIds.add(String(row.rawg_game_id));
+        for (let i = 0; i < savedRows.length; i++) {
+            savedGameIds.push(String(savedRows[i].rawg_game_id));
 
-            if (row.genres) {
-                let genreList = row.genres.split(",");
+            if (savedRows[i].genres) {
+                let genreList = savedRows[i].genres.split(",");
 
-                for (let genre of genreList) {
-                    let cleanGenre = genre.trim();
+                for (let j = 0; j < genreList.length; j++) {
+                    let genre = genreList[j].trim();
 
-                    if (cleanGenre != "") {
-                        if (!genreCounts[cleanGenre]) {
-                            genreCounts[cleanGenre] = 0;
+                    if (genre != "") {
+                        let found = false;
+
+                        for (let k = 0; k < genreNames.length; k++) {
+                            if (genreNames[k].toLowerCase() == genre.toLowerCase()) {
+                                genreTotals[k]++;
+                                found = true;
+                            }
                         }
-                        genreCounts[cleanGenre]++;
+
+                        if (!found) {
+                            genreNames.push(genre);
+                            genreTotals.push(1);
+                        }
                     }
                 }
             }
         }
 
-        let topGenre = "";
-        let recommendedGames = [];
+        if (genreNames.length > 0) {
+            let highestIndex = 0;
 
-        if (Object.keys(genreCounts).length > 0) {
-            let sortedGenres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]);
-            topGenre = sortedGenres[0][0];
-
-            let genreSlug = topGenre.toLowerCase()
-                .replace(/&/g, "and")
-                .replace(/[^a-z0-9]+/g, "-")
-                .replace(/^-+|-+$/g, "");
-
-            let genresUrl = `https://api.rawg.io/api/genres?key=${RAWG_API_KEY}&page_size=40`;
-            let genresResponse = await fetch(genresUrl);
-            let genresData = await genresResponse.json();
-
-            let matchedGenre = null;
-
-            if (genresData.results) {
-                matchedGenre = genresData.results.find(genre =>
-                    genre.name.toLowerCase() == topGenre.toLowerCase()
-                );
+            for (let i = 1; i < genreTotals.length; i++) {
+                if (genreTotals[i] > genreTotals[highestIndex]) {
+                    highestIndex = i;
+                }
             }
 
-            if (matchedGenre) {
-                genreSlug = matchedGenre.slug;
-            }
+            topGenre = genreNames[highestIndex];
 
-            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&genres=${genreSlug}&ordering=-rating&page_size=20`;
+            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${topGenre}&page_size=20`;
             let recommendedResponse = await fetch(recommendedUrl);
             let recommendedData = await recommendedResponse.json();
 
             if (recommendedData.results) {
-                recommendedGames = recommendedData.results.filter(game =>
-                    !savedGameIds.has(String(game.id))
-                ).slice(0, 12);
+                for (let i = 0; i < recommendedData.results.length; i++) {
+                    let game = recommendedData.results[i];
+                    let alreadySaved = false;
+
+                    for (let j = 0; j < savedGameIds.length; j++) {
+                        if (savedGameIds[j] == String(game.id)) {
+                            alreadySaved = true;
+                        }
+                    }
+
+                    if (!alreadySaved && recommendedGames.length < 12) {
+                        recommendedGames.push(game);
+                    }
+                }
             }
         }
 
-        res.render('browse.ejs', {
-            popularGames,
-            topRatedGames,
-            recentGames,
-            recommendedGames,
-            topGenre,
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
+
+        res.render('browse.ejs', { popularGames, topRatedGames, recentGames, recommendedGames, topGenre, authenticated, username });
 
     } catch (err) {
         console.error("Browse page error:", err);
@@ -453,9 +402,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
 // Save or update game
 app.post('/saveGame', async (req, res) => {
     if (!req.session.userId) {
-        return res.json({
-            error: "You must be logged in to save a game."
-        });
+        return res.json({ error: "You must be logged in to save a game." });
     }
 
     let rawgGameId = req.body.rawg_game_id;
@@ -468,9 +415,7 @@ app.post('/saveGame', async (req, res) => {
 
     try {
         if (!status || status.trim() == "") {
-            return res.json({
-                error: "Error: please select a status"
-            });
+            return res.json({ error: "Error: please select a status" });
         }
 
         let sql = `SELECT id
@@ -482,11 +427,7 @@ app.post('/saveGame', async (req, res) => {
 
         if (rows.length > 0) {
             sql = `UPDATE saved_games
-                   SET title = ?,
-                       cover_image = ?,
-                       genres = ?,
-                       status = ?,
-                       is_favorite = ?
+                   SET title = ?, cover_image = ?, genres = ?, status = ?, is_favorite = ?
                    WHERE user_id = ?
                    AND rawg_game_id = ?`;
 
@@ -494,9 +435,7 @@ app.post('/saveGame', async (req, res) => {
 
             await pool.query(sql, sqlParams);
 
-            return res.json({
-                success: "Game updated successfully in your library!"
-            });
+            return res.json({ success: "Game updated successfully in your library!" });
         }
 
         sql = `INSERT INTO saved_games
@@ -507,15 +446,11 @@ app.post('/saveGame', async (req, res) => {
 
         await pool.query(sql, sqlParams);
 
-        res.json({
-            success: "Game saved successfully to your library!"
-        });
+        res.json({ success: "Game saved successfully to your library!" });
 
     } catch (err) {
         console.error("Database error:", err);
-        res.json({
-            error: "Database error!"
-        });
+        res.json({ error: "Database error!" });
     }
 });
 
@@ -567,17 +502,10 @@ app.get('/library', isUserAuthenticated, async (req, res) => {
         let [statsRows] = await pool.query(statsSql, [userId]);
 
         let stats = statsRows[0];
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
 
-        res.render('library.ejs', {
-            games,
-            stats,
-            view,
-            status,
-            sort,
-            libraryMessage,
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        res.render('library.ejs', { games, stats, view, status, sort, libraryMessage, authenticated, username });
 
     } catch (err) {
         console.error("Database error:", err);
@@ -642,11 +570,11 @@ app.get('/trending', isUserAuthenticated, async (req, res) => {
         let response = await fetch(url);
         let dealData = await response.json();
 
-        res.render('trending.ejs', {
-            deals: dealData,
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        let deals = dealData;
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
+
+        res.render('trending.ejs', { deals, authenticated, username });
     } catch (err) {
         console.error("Error fetching trending games:", err);
         res.status(500).send("Error fetching trending games!");
@@ -656,9 +584,7 @@ app.get('/trending', isUserAuthenticated, async (req, res) => {
 // Add review
 app.post('/addReview', async (req, res) => {
     if (!req.session.userId) {
-        return res.json({
-            error: "You must be logged in to add a review."
-        });
+        return res.json({ error: "You must be logged in to add a review." });
     }
 
     let userId = req.session.userId;
@@ -669,21 +595,15 @@ app.post('/addReview', async (req, res) => {
 
     try {
         if (!rating || rating < 1 || rating > 5) {
-            return res.json({
-                error: "Enter a rating between 1 and 5."
-            });
+            return res.json({ error: "Enter a rating between 1 and 5." });
         }
 
         if (!reviewTitle || reviewTitle.trim() === "") {
-            return res.json({
-                error: "Review title cannot be blank."
-            });
+            return res.json({ error: "Review title cannot be blank." });
         }
 
         if (!reviewText || reviewText.trim() === "") {
-            return res.json({
-                error: "Review text cannot be blank."
-            });
+            return res.json({ error: "Review text cannot be blank." });
         }
 
         let checkSql = `SELECT id
@@ -694,9 +614,7 @@ app.post('/addReview', async (req, res) => {
         let [existingRows] = await pool.query(checkSql, [userId, rawgGameId]);
 
         if (existingRows.length > 0) {
-            return res.json({
-                error: "You already reviewed this game. Use the update option."
-            });
+            return res.json({ error: "You already reviewed this game. Use the update option." });
         }
 
         let sql = `INSERT INTO reviews
@@ -707,15 +625,11 @@ app.post('/addReview', async (req, res) => {
 
         await pool.query(sql, sqlParams);
 
-        res.json({
-            success: "Review added"
-        });
+        res.json({ success: "Review added" });
 
     } catch (err) {
         console.error("Database error:", err);
-        res.json({
-            error: "Database error!"
-        });
+        res.json({ error: "Database error!" });
     }
 });
 
@@ -742,9 +656,8 @@ app.get('/user/:userId', isUserAuthenticated, async (req, res) => {
         let profileUser = userRows[0];
         let isOwnProfile = Number(profileUser.id) === Number(req.session.userId);
 
-        let statsSql = `SELECT
-                            COUNT(*) totalSaved,
-                            SUM(CASE WHEN is_favorite = 1 THEN 1 ELSE 0 END) totalFavorites
+        let statsSql = `SELECT COUNT(*) totalSaved,
+                               SUM(CASE WHEN is_favorite = 1 THEN 1 ELSE 0 END) totalFavorites
                         FROM saved_games
                         WHERE user_id = ?`;
 
@@ -759,32 +672,46 @@ app.get('/user/:userId', isUserAuthenticated, async (req, res) => {
         let selectedGameIds = [];
 
         if (profileUser.featured_games && profileUser.featured_games.trim() != "") {
-            selectedGameIds = profileUser.featured_games
-                .split(",")
-                .map(id => id.trim())
-                .filter(id => id != "");
+            let parts = profileUser.featured_games.split(",");
+
+            for (let i = 0; i < parts.length; i++) {
+                let id = parts[i].trim();
+                if (id != "") {
+                    selectedGameIds.push(id);
+                }
+            }
         }
 
         if (selectedGameIds.length > 0) {
-            let placeholders = selectedGameIds.map(() => "?").join(", ");
+            let placeholders = "";
+            for (let i = 0; i < selectedGameIds.length; i++) {
+                if (i == 0) {
+                    placeholders += "?";
+                } else {
+                    placeholders += ", ?";
+                }
+            }
+
             let featuredSql = `SELECT rawg_game_id, title, cover_image, status, is_favorite
                                FROM saved_games
                                WHERE user_id = ?
                                AND rawg_game_id IN (${placeholders})`;
 
-            let [featuredRows] = await pool.query(featuredSql, [profileUserId, ...selectedGameIds]);
+            let queryParams = [profileUserId];
+            for (let i = 0; i < selectedGameIds.length; i++) {
+                queryParams.push(selectedGameIds[i]);
+            }
+
+            let [featuredRows] = await pool.query(featuredSql, queryParams);
             featuredGames = featuredRows;
         }
 
-        res.render('profile.ejs', {
-            profileUser,
-            isOwnProfile,
-            featuredGames,
-            stats: statsRows[0],
-            reviewStats: reviewStatsRows[0],
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        let stats = statsRows[0];
+        let reviewStats = reviewStatsRows[0];
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
+
+        res.render('profile.ejs', { profileUser, isOwnProfile, featuredGames, stats, reviewStats, authenticated, username });
 
     } catch (err) {
         console.error("Profile route error:", err);
@@ -815,20 +742,17 @@ app.get('/editProfile', isUserAuthenticated, async (req, res) => {
         let selectedFeaturedGames = [];
 
         if (userInfo.featured_games && userInfo.featured_games.trim() != "") {
-            selectedFeaturedGames = userInfo.featured_games
-                .split(",")
-                .map(id => id.trim());
+            let parts = userInfo.featured_games.split(",");
+
+            for (let i = 0; i < parts.length; i++) {
+                selectedFeaturedGames.push(parts[i].trim());
+            }
         }
 
-        res.render('editProfile.ejs', {
-            userInfo,
-            savedGames,
-            selectedFeaturedGames,
-            profileSuccess,
-            profileError,
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
+
+        res.render('editProfile.ejs', { userInfo, savedGames, selectedFeaturedGames, profileSuccess, profileError, authenticated, username });
 
     } catch (err) {
         console.error("Edit profile route error:", err);
@@ -865,7 +789,14 @@ app.post('/editProfile', isUserAuthenticated, async (req, res) => {
             featuredGames = [featuredGames];
         }
 
-        let featuredGamesString = featuredGames.join(",");
+        let featuredGamesString = "";
+        for (let i = 0; i < featuredGames.length; i++) {
+            if (i == 0) {
+                featuredGamesString += featuredGames[i];
+            } else {
+                featuredGamesString += "," + featuredGames[i];
+            }
+        }
 
         let sql = `UPDATE users
                    SET display_name = ?, profile_image = ?, bio = ?, featured_games = ?
@@ -901,12 +832,10 @@ app.get('/editReview', isUserAuthenticated, async (req, res) => {
         }
 
         let reviewInfo = rows[0];
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
 
-        res.render('editReview.ejs', {
-            reviewInfo,
-            authenticated: req.session.authenticated,
-            username: req.session.username
-        });
+        res.render('editReview.ejs', { reviewInfo, authenticated, username });
 
     } catch (err) {
         console.error("Edit review route error:", err);
