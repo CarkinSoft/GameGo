@@ -351,7 +351,6 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
 
         let popularPage = Math.floor(Math.random() * 3) + 1;
         let currentPopularPage = Math.floor(Math.random() * 3) + 1;
-        let recommendedPage = Math.floor(Math.random() * 3) + 1;
 
         let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=30&page=${popularPage}`;
         let popularResponse = await fetch(popularUrl);
@@ -368,21 +367,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         shuffleArray(popularGames);
         popularGames = popularGames.slice(0, 18);
 
-        let currentPopularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-added&page_size=30&page=${currentPopularPage}`;
-        let currentPopularResponse = await fetch(currentPopularUrl);
-        let currentPopularData = await currentPopularResponse.json();
-        let currentPopularResults = currentPopularData.results || [];
-        let currentPopularGames = [];
-
-        for (let i = 0; i < currentPopularResults.length; i++) {
-            if (isCleanGame(currentPopularResults[i])) {
-                currentPopularGames.push(currentPopularResults[i]);
-            }
-        }
-
-        shuffleArray(currentPopularGames);
-        currentPopularGames = currentPopularGames.slice(0, 18);
-
+        
         let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=18&page=1`;
         let topRatedResponse = await fetch(topRatedUrl);
         let topRatedData = await topRatedResponse.json();
@@ -459,7 +444,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
 
             topGenre = genreNames[highestIndex];
 
-            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${topGenre}&page_size=30&page=${recommendedPage}`;
+            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${topGenre}&ordering=-rating&page_size=30&page=1`;
             let recommendedResponse = await fetch(recommendedUrl);
             let recommendedData = await recommendedResponse.json();
 
@@ -481,14 +466,13 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
                 }
             }
 
-            shuffleArray(recommendedGames);
             recommendedGames = recommendedGames.slice(0, 18);
         }
 
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('browse.ejs', {recommendedGames, topGenre, currentPopularGames, popularGames, topRatedGames, recentGames, authenticated, username});
+        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
 
     } catch (err) {
         console.error("Browse page error:", err);
@@ -502,7 +486,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('browse.ejs', {recommendedGames, topGenre, currentPopularGames, popularGames, topRatedGames, recentGames, authenticated, username});
+        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
     }
 });
 

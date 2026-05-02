@@ -14,128 +14,170 @@
 
     <main class="container mt-4">
 
-        <section class="card mb-4 p-3">
-            <h2>Recommended For You</h2>
+        <section class="browse-section">
+            <div class="card browse-panel p-4">
+                <div class="browse-header">
+                    <div>
+                        <p class="browse-kicker">BROWSE GAMES</p>
+                        <h2>Recommended For You</h2>
 
-            <% if (topGenre) { %>
-                <p>Based on your library, your top genre is <strong><%= topGenre %></strong>.</p>
-            <% } else { %>
-                <p>Save some games to your library and recommendations will show up here.</p>
-            <% } %>
-
-            <% if (recommendedGames.length > 0) { %>
-                <div class="browse-carousel-wrapper">
-                    <button class="carousel-btn left" data-track="recommendedTrack">&#10094;</button>
-
-                    <div class="browse-track" id="recommendedTrack">
-                        <% for (let game of recommendedGames) { %>
-                            <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
-                                <div class="browse-card">
-                                    <h3><%= game.name %></h3>
-
-                                    <% if (game.background_image) { %>
-                                        <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                                    <% } %>
-
-                                    <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                                    <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-                                </div>
-                            </a>
+                        <% if (topGenre) { %>
+                            <p>Based on your library, your top genre is <strong><%= topGenre %></strong>.</p>
+                        <% } else { %>
+                            <p>Save some games to your library and recommendations will show up here.</p>
                         <% } %>
                     </div>
-
-                    <button class="carousel-btn right" data-track="recommendedTrack">&#10095;</button>
-                </div>
-            <% } else if (topGenre) { %>
-                <p>No recommendations found yet for your current library.</p>
-            <% } %>
-        </section>
-
-        <section class="card mb-4 p-3">
-            <h2>Popular Titles</h2>
-            <p>Browse some of the most popular games right now.</p>
-
-            <div class="browse-carousel-wrapper">
-                <button class="carousel-btn left" data-track="popularTrack">&#10094;</button>
-
-                <div class="browse-track" id="popularTrack">
-                    <% for (let game of popularGames) { %>
-                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
-                            <div class="browse-card">
-                                <h3><%= game.name %></h3>
-
-                                <% if (game.background_image) { %>
-                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                                <% } %>
-
-                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-                            </div>
-                        </a>
-                    <% } %>
                 </div>
 
-                <button class="carousel-btn right" data-track="popularTrack">&#10095;</button>
+                <% if (recommendedGames.length > 0) { %>
+                    <div class="browse-carousel-wrapper">
+                        <button class="carousel-btn left" data-track="recommendedTrack">&#10094;</button>
+
+                        <div class="browse-track" id="recommendedTrack">
+                            <% for (let game of recommendedGames) { %>
+                                <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                                    <div class="browse-card">
+                                        <% if (game.background_image) { %>
+                                            <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                        <% } %>
+
+                                        <div class="browse-card-body">
+                                            <h3><%= game.name %></h3>
+                                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            <% } %>
+                        </div>
+
+                        <button class="carousel-btn right" data-track="recommendedTrack">&#10095;</button>
+                    </div>
+                <% } else { %>
+                    <p>No recommendations available right now.</p>
+                <% } %>
             </div>
         </section>
 
-        <section class="card mb-4 p-3">
-            <h2>Top Rated Games</h2>
-            <p>These are some of the highest rated titles.</p>
-
-            <div class="browse-carousel-wrapper">
-                <button class="carousel-btn left" data-track="topRatedTrack">&#10094;</button>
-
-                <div class="browse-track" id="topRatedTrack">
-                    <% for (let game of topRatedGames) { %>
-                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
-                            <div class="browse-card">
-                                <h3><%= game.name %></h3>
-
-                                <% if (game.background_image) { %>
-                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                                <% } %>
-
-                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-                            </div>
-                        </a>
-                    <% } %>
+        <section class="browse-section">
+            <div class="card browse-panel p-4">
+                <div class="browse-header">
+                    <div>
+                        <p class="browse-kicker">BROWSE GAMES</p>
+                        <h2>Popular Titles</h2>
+                        <p>Browse some of the most popular games right now.</p>
+                    </div>
                 </div>
 
-                <button class="carousel-btn right" data-track="topRatedTrack">&#10095;</button>
+                <% if (popularGames.length > 0) { %>
+                    <div class="browse-carousel-wrapper">
+                        <button class="carousel-btn left" data-track="popularTrack">&#10094;</button>
+
+                        <div class="browse-track" id="popularTrack">
+                            <% for (let game of popularGames) { %>
+                                <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                                    <div class="browse-card">
+                                        <% if (game.background_image) { %>
+                                            <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                        <% } %>
+
+                                        <div class="browse-card-body">
+                                            <h3><%= game.name %></h3>
+                                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            <% } %>
+                        </div>
+
+                        <button class="carousel-btn right" data-track="popularTrack">&#10095;</button>
+                    </div>
+                <% } else { %>
+                    <p>No popular games found.</p>
+                <% } %>
             </div>
         </section>
 
-        <section class="card mb-4 p-3">
-            <h2>Recent Releases</h2>
-            <p>See newer games released this year.</p>
-
-            <div class="browse-carousel-wrapper">
-                <button class="carousel-btn left" data-track="recentTrack">&#10094;</button>
-
-                <div class="browse-track" id="recentTrack">
-                    <% for (let game of recentGames) { %>
-                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
-                            <div class="browse-card">
-                                <h3><%= game.name %></h3>
-
-                                <% if (game.background_image) { %>
-                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                                <% } %>
-
-                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-                            </div>
-                        </a>
-                    <% } %>
+        <section class="browse-section">
+            <div class="card browse-panel p-4">
+                <div class="browse-header">
+                    <div>
+                        <p class="browse-kicker">BROWSE GAMES</p>
+                        <h2>Top Rated Games</h2>
+                        <p>These are some of the highest rated titles.</p>
+                    </div>
                 </div>
 
-                <button class="carousel-btn right" data-track="recentTrack">&#10095;</button>
+                <% if (topRatedGames.length > 0) { %>
+                    <div class="browse-carousel-wrapper">
+                        <button class="carousel-btn left" data-track="topRatedTrack">&#10094;</button>
+
+                        <div class="browse-track" id="topRatedTrack">
+                            <% for (let game of topRatedGames) { %>
+                                <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                                    <div class="browse-card">
+                                        <% if (game.background_image) { %>
+                                            <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                        <% } %>
+
+                                        <div class="browse-card-body">
+                                            <h3><%= game.name %></h3>
+                                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            <% } %>
+                        </div>
+
+                        <button class="carousel-btn right" data-track="topRatedTrack">&#10095;</button>
+                    </div>
+                <% } else { %>
+                    <p>No top rated games found.</p>
+                <% } %>
             </div>
         </section>
 
-        
+        <section class="browse-section">
+            <div class="card browse-panel p-4">
+                <div class="browse-header">
+                    <div>
+                        <p class="browse-kicker">BROWSE GAMES</p>
+                        <h2>Recent Releases</h2>
+                        <p>See newer games released this year.</p>
+                    </div>
+                </div>
+
+                <% if (recentGames.length > 0) { %>
+                    <div class="browse-carousel-wrapper">
+                        <button class="carousel-btn left" data-track="recentTrack">&#10094;</button>
+
+                        <div class="browse-track" id="recentTrack">
+                            <% for (let game of recentGames) { %>
+                                <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                                    <div class="browse-card">
+                                        <% if (game.background_image) { %>
+                                            <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                        <% } %>
+
+                                        <div class="browse-card-body">
+                                            <h3><%= game.name %></h3>
+                                            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                            <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            <% } %>
+                        </div>
+
+                        <button class="carousel-btn right" data-track="recentTrack">&#10095;</button>
+                    </div>
+                <% } else { %>
+                    <p>No recent releases found.</p>
+                <% } %>
+            </div>
+        </section>
 
     </main>
 
