@@ -1,26 +1,35 @@
 body {
-    text-align: center;
     min-height: 100vh;
     margin: 0;
     display: flex;
     flex-direction: column;
+    text-align: center;
     background-color: #f8f9fa;
     color: #212529;
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.5;
 }
 
+main, .container, .my-page {
+    flex: 1;
+}
+
+.container, .my-page {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
 h1 {
-    letter-spacing: 0.5px;
-    color: darkslateblue;
-    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-bottom: 1rem;
+    color: darkslateblue;
     font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    align-items: center;
-    justify-content: center;
-    display: flex;
 }
 
 h2 {
@@ -28,48 +37,36 @@ h2 {
     font-weight: 600;
 }
 
-.container {
-    flex: 1;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-}
-
-.my-page {
-    flex: 1;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-}
-
-.card {
-    border: none;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff;
-    padding: 1rem;
-}
-
-.page-card {
-    margin-bottom: 1rem;
-}
-
-.card p {
-    margin-bottom: 0.75rem;
-}
-
 img {
+    display: block;
+    margin: 0 auto;
     max-width: 100%;
     height: auto;
     object-fit: cover;
-    display: block;
-    margin: 0 auto;
 }
 
-.deal-thumb {
-    max-width: 250px;
-    margin: 3 auto;
-    background-color: darkslateblue;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
+.card,
+.page-card,
+.browse-card {
+    background-color: #fff;
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card,
+.page-card {
+    padding: 1rem;
+}
+
+.card p,
+.browse-card-body p {
+    margin-bottom: 0.5rem;
+}
+
+.page-card,
+.browse-section {
+    margin-bottom: 1.5rem;
 }
 
 .row {
@@ -77,24 +74,34 @@ img {
     margin-right: 0;
 }
 
-.col-md-6 {
-    padding: 0.75rem;
-}
-
 .hidden {
     display: none;
 }
 
+.success-message,
+.error-message {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
 .success-message {
     color: green;
-    font-weight: bold;
-    margin-bottom: 15px;
 }
 
 .error-message {
     color: red;
-    font-weight: bold;
-    margin-bottom: 15px;
+}
+
+.game-card-link,
+.browse-card-link,
+.profile-name-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.game-card-link .card,
+.browse-card-link .browse-card {
+    cursor: pointer;
 }
 
 .site-footer {
@@ -108,102 +115,167 @@ img {
 }
 
 .footer-text {
+    margin: 0;
     padding-left: 0.5rem;
     letter-spacing: 0.3px;
+}
+
+/* Shared image sizes */
+.search-card img,
+.library-thumb,
+.featured-thumb {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 0.75rem;
+}
+
+.search-card img {
+    height: 260px;
+    margin-bottom: 0.75rem;
+}
+
+.library-thumb,
+.featured-thumb {
+    max-width: 180px;
+    height: 220px;
+}
+
+.profile-review-img,
+.profile-hero-img,
+.profile-img-lg {
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-review-img {
+    width: 55px;
+    height: 55px;
+}
+
+.profile-hero-img,
+.profile-img-lg {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 1rem;
+}
+
+.deal-thumb {
+    max-width: 250px;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: darkslateblue;
+}
+
+/* Browse page */
+.browse-panel {
+    padding: 2rem;
+    border-radius: 1.25rem;
+}
+
+.browse-header {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.browse-kicker {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.browse-header h2 {
+    margin-bottom: 0.5rem;
+    font-size: 2.2rem;
+}
+
+.browse-header p {
+    margin-bottom: 0;
+    font-size: 1.05rem;
 }
 
 .browse-carousel-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     width: 100%;
 }
 
 .browse-track {
     display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    scroll-behavior: smooth;
+    gap: 1.25rem;
     width: 100%;
+    overflow-x: auto;
     padding: 0.5rem 0;
+    scroll-behavior: smooth;
 }
 
 .browse-track::-webkit-scrollbar {
     display: none;
 }
 
+.browse-card-link {
+    flex: 0 0 auto;
+}
+
 .browse-card {
-    flex: 0 0 260px;
+    width: 340px;
+    overflow: hidden;
     border: 1px solid #ddd;
-    border-radius: 0.75rem;
-    background-color: white;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .browse-card img {
-    max-width: 100%;
-    height: 220px;
-    object-fit: cover;
+    width: 100%;
+    height: 230px;
+}
+
+.browse-card-body {
+    padding: 1rem;
+    text-align: left;
+}
+
+.browse-card-body h3 {
     margin-bottom: 0.75rem;
-    border-radius: 0.5rem;
+    font-size: 1.5rem;
+    min-height: 64px;
 }
 
 .carousel-btn {
+    width: 48px;
+    height: 48px;
     border: none;
-    background-color: darkslateblue;
-    color: white;
-    font-size: 1.5rem;
-    width: 42px;
-    height: 42px;
     border-radius: 50%;
+    font-size: 1.5rem;
     cursor: pointer;
     flex-shrink: 0;
 }
 
-.carousel-btn:hover {
-    opacity: 0.9;
-}
+/* Smaller screens */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
 
-.game-card-link,
-.browse-card-link,
-.profile-name-link {
-    text-decoration: none;
-    color: inherit;
-}
+    .browse-panel {
+        padding: 1.25rem;
+    }
 
-.game-card-link .card,
-.browse-card-link .browse-card {
-    cursor: pointer;
-    transition: transform 0.15s ease;
-    border-radius: 12px;
-    overflow: hidden;
-}
+    .browse-card {
+        width: 280px;
+    }
 
-.game-card-link:hover .card,
-.browse-card-link:hover .browse-card {
-    transform: translateY(-4px);
-}
+    .browse-card img {
+        height: 200px;
+    }
 
-.search-card img {
-    width: 100%;
-    height: 260px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 0.75rem;
-}
+    .browse-card-body h3 {
+        font-size: 1.25rem;
+        min-height: auto;
+    }
 
-.profile-review-img {
-    width: 55px;
-    height: 55px;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.profile-hero-img {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-bottom: 1rem;
+    .carousel-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 1.25rem;
+    }
 }

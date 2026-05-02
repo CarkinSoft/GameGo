@@ -35,6 +35,55 @@ function isUserAuthenticated(req, res, next) {
     }
 }
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        let temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
+// Function to remove NSFW content from RAWG api
+function isCleanGame(game) {
+    let badWords = ["hentai", "porn", "sex", "adult", "erotic", "nude", "nsfw", "loli"];
+    let gameName = "";
+
+    if (game.name) {
+        gameName = game.name.toLowerCase();
+    }
+
+    for (let i = 0; i < badWords.length; i++) {
+        if (gameName.includes(badWords[i])) {
+            return false;
+        }
+    }
+
+    if (game.esrb_rating && game.esrb_rating.name) {
+        let ratingName = game.esrb_rating.name.toLowerCase();
+
+        if (ratingName.includes("adults only")) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+async function getSavedRows(userId) {
+    let sql = `SELECT rawg_game_id, genres
+               FROM saved_games
+               WHERE user_id = ?`;
+
+    try {
+        let [rows] = await pool.query(sql, [userId]);
+        return rows;
+    } catch (err) {
+        console.error("Saved games query error:", err);
+        return [];
+    }
+}
+
 // Landing page
 app.get('/', (req, res) => {
     if (req.session.authenticated) {
@@ -300,26 +349,54 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let today = new Date().toISOString().split("T")[0];
         let yearStart = `${new Date().getFullYear()}-01-01`;
 
-        let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=12`;
+        let popularPage = Math.floor(Math.random() * 3) + 1;
+        let currentPopularPage = Math.floor(Math.random() * 3) + 1;
+
+        let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=30&page=${popularPage}`;
         let popularResponse = await fetch(popularUrl);
         let popularData = await popularResponse.json();
-        let popularGames = popularData.results || [];
+        let popularResults = popularData.results || [];
+        let popularGames = [];
 
-        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=12`;
+        for (let i = 0; i < popularResults.length; i++) {
+            if (isCleanGame(popularResults[i])) {
+                popularGames.push(popularResults[i]);
+            }
+        }
+
+        shuffleArray(popularGames);
+        popularGames = popularGames.slice(0, 18);
+
+        
+        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=18&page=1`;
         let topRatedResponse = await fetch(topRatedUrl);
         let topRatedData = await topRatedResponse.json();
-        let topRatedGames = topRatedData.results || [];
+        let topRatedResults = topRatedData.results || [];
+        let topRatedGames = [];
 
-        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=12`;
+        for (let i = 0; i < topRatedResults.length; i++) {
+            if (isCleanGame(topRatedResults[i])) {
+                topRatedGames.push(topRatedResults[i]);
+            }
+        }
+
+        topRatedGames = topRatedGames.slice(0, 18);
+
+        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=18&page=1`;
         let recentResponse = await fetch(recentUrl);
         let recentData = await recentResponse.json();
-        let recentGames = recentData.results || [];
+        let recentResults = recentData.results || [];
+        let recentGames = [];
 
-        let savedSql = `SELECT rawg_game_id, genres
-                        FROM saved_games
-                        WHERE user_id = ?`;
+        for (let i = 0; i < recentResults.length; i++) {
+            if (isCleanGame(recentResults[i])) {
+                recentGames.push(recentResults[i]);
+            }
+        }
 
-        let [savedRows] = await pool.query(savedSql, [userId]);
+        recentGames = recentGames.slice(0, 18);
+
+        let savedRows = await getSavedRows(userId);
 
         let savedGameIds = [];
         let genreNames = [];
@@ -343,6 +420,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
                             if (genreNames[k].toLowerCase() == genre.toLowerCase()) {
                                 genreTotals[k]++;
                                 found = true;
+                                break;
                             }
                         }
 
@@ -366,7 +444,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
 
             topGenre = genreNames[highestIndex];
 
-            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${topGenre}&page_size=20`;
+            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${topGenre}&ordering=-rating&page_size=30&page=1`;
             let recommendedResponse = await fetch(recommendedUrl);
             let recommendedData = await recommendedResponse.json();
 
@@ -378,24 +456,37 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
                     for (let j = 0; j < savedGameIds.length; j++) {
                         if (savedGameIds[j] == String(game.id)) {
                             alreadySaved = true;
+                            break;
                         }
                     }
 
-                    if (!alreadySaved && recommendedGames.length < 12) {
+                    if (!alreadySaved && isCleanGame(game)) {
                         recommendedGames.push(game);
                     }
                 }
             }
+
+            recommendedGames = recommendedGames.slice(0, 18);
         }
 
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('browse.ejs', { popularGames, topRatedGames, recentGames, recommendedGames, topGenre, authenticated, username });
+        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
 
     } catch (err) {
         console.error("Browse page error:", err);
-        res.status(500).send("Browse page error!");
+
+        let recommendedGames = [];
+        let topGenre = "";
+        let currentPopularGames = [];
+        let popularGames = [];
+        let topRatedGames = [];
+        let recentGames = [];
+        let authenticated = req.session.authenticated;
+        let username = req.session.username;
+
+        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
     }
 });
 
@@ -410,8 +501,12 @@ app.post('/saveGame', async (req, res) => {
     let coverImage = req.body.cover_image;
     let genres = req.body.genres;
     let status = req.body.status;
-    let isFavorite = req.body.is_favorite ? 1 : 0;
+    let isFavorite = 0;
     let userId = req.session.userId;
+
+    if (req.body.is_favorite == "1") {
+        isFavorite = 1;
+    }
 
     try {
         if (!status || status.trim() == "") {
@@ -518,8 +613,12 @@ app.post('/updateSavedGame', isUserAuthenticated, async (req, res) => {
     let savedGameId = req.body.savedGameId;
     let status = req.body.status;
     let genres = req.body.genres;
-    let isFavorite = req.body.is_favorite ? 1 : 0;
+    let isFavorite = 0;
     let userId = req.session.userId;
+
+    if (req.body.is_favorite) {
+        isFavorite = 1;
+    }
 
     try {
         if (!status || status.trim() == "") {

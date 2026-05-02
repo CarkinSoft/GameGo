@@ -4,7 +4,7 @@
     <%- include("partials/head.ejs") %>
 </head>
 <body>
-    <header>
+    <header class="page-title">
         <h1>My Library</h1>
     </header>
 
@@ -12,129 +12,186 @@
         <%- include("partials/nav.ejs") %>
     </nav>
 
-    <main class="container mt-4">
+    <main class="container py-4">
         <% if (libraryMessage) { %>
-            <div class="success-message"><%= libraryMessage %></div>
+            <div class="success-message text-center"><%= libraryMessage %></div>
         <% } %>
 
-        <section class="card mb-4 p-3">
-            <h2 class="mb-3">Library Stats</h2>
-            <div class="row">
-                <div class="col-md-4"><p><strong>Total Games:</strong> <%= stats.totalGames || 0 %></p></div>
-                <div class="col-md-4"><p><strong>Favorites:</strong> <%= stats.favoriteCount || 0 %></p></div>
-                <div class="col-md-4"><p><strong>Want to Play:</strong> <%= stats.wantToPlayCount || 0 %></p></div>
-                <div class="col-md-4"><p><strong>Playing:</strong> <%= stats.playingCount || 0 %></p></div>
-                <div class="col-md-4"><p><strong>Completed:</strong> <%= stats.completedCount || 0 %></p></div>
-                <div class="col-md-4"><p><strong>Dropped:</strong> <%= stats.droppedCount || 0 %></p></div>
+        <section class="card page-card mb-4">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">Library Stats</h2>
+
+                <div class="row text-center">
+                    <div class="col-md-4 col-lg-2 mb-3">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6>Total</h6>
+                            <p class="mb-0"><%= stats.totalGames || 0 %></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-2 mb-3">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6>Favorites</h6>
+                            <p class="mb-0"><%= stats.favoriteCount || 0 %></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-2 mb-3">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6>Want to Play</h6>
+                            <p class="mb-0"><%= stats.wantToPlayCount || 0 %></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-2 mb-3">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6>Playing</h6>
+                            <p class="mb-0"><%= stats.playingCount || 0 %></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-2 mb-3">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6>Completed</h6>
+                            <p class="mb-0"><%= stats.completedCount || 0 %></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-2 mb-3">
+                        <div class="border rounded p-3 bg-light h-100">
+                            <h6>Dropped</h6>
+                            <p class="mb-0"><%= stats.droppedCount || 0 %></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section class="card mb-4 p-3">
-            <h2 class="mb-3">Filter Library</h2>
+        <section class="card page-card mb-4">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">Filter Library</h2>
 
-            <div class="mb-3">
-                <a href="/library" class="btn btn-primary btn-sm">All Games</a>
-                <a href="/library?view=favorites" class="btn btn-warning btn-sm">Favorites Only</a>
+                <div class="text-center mb-3">
+                    <a href="/library" class="btn btn-primary btn-sm me-2">All Games</a>
+                    <a href="/library?view=favorites" class="btn btn-warning btn-sm">Favorites Only</a>
+                </div>
+
+                <form action="/library" method="GET">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">View</label>
+                            <select name="view" class="form-select">
+                                <option value="all" <%= view == "all" ? "selected" : "" %>>All Games</option>
+                                <option value="favorites" <%= view == "favorites" ? "selected" : "" %>>Favorites Only</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="" <%= status == "" ? "selected" : "" %>>All Statuses</option>
+                                <option value="Want to Play" <%= status == "Want to Play" ? "selected" : "" %>>Want to Play</option>
+                                <option value="Playing" <%= status == "Playing" ? "selected" : "" %>>Playing</option>
+                                <option value="Completed" <%= status == "Completed" ? "selected" : "" %>>Completed</option>
+                                <option value="Dropped" <%= status == "Dropped" ? "selected" : "" %>>Dropped</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Sort By</label>
+                            <select name="sort" class="form-select">
+                                <option value="newest" <%= sort == "newest" ? "selected" : "" %>>Newest First</option>
+                                <option value="oldest" <%= sort == "oldest" ? "selected" : "" %>>Oldest First</option>
+                                <option value="title" <%= sort == "title" ? "selected" : "" %>>Title A-Z</option>
+                                <option value="status" <%= sort == "status" ? "selected" : "" %>>Status</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-success px-4">Apply Filters</button>
+                    </div>
+                </form>
             </div>
-
-            <form action="/library" method="GET">
-                <div class="mb-3">
-                    <label class="form-label">View:</label>
-                    <select name="view" class="form-select">
-                        <option value="all" <%= view == "all" ? "selected" : "" %>>All Games</option>
-                        <option value="favorites" <%= view == "favorites" ? "selected" : "" %>>Favorites Only</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Status:</label>
-                    <select name="status" class="form-select">
-                        <option value="" <%= status == "" ? "selected" : "" %>>All Statuses</option>
-                        <option value="Want to Play" <%= status == "Want to Play" ? "selected" : "" %>>Want to Play</option>
-                        <option value="Playing" <%= status == "Playing" ? "selected" : "" %>>Playing</option>
-                        <option value="Completed" <%= status == "Completed" ? "selected" : "" %>>Completed</option>
-                        <option value="Dropped" <%= status == "Dropped" ? "selected" : "" %>>Dropped</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Sort By:</label>
-                    <select name="sort" class="form-select">
-                        <option value="newest" <%= sort == "newest" ? "selected" : "" %>>Newest First</option>
-                        <option value="oldest" <%= sort == "oldest" ? "selected" : "" %>>Oldest First</option>
-                        <option value="title" <%= sort == "title" ? "selected" : "" %>>Title A-Z</option>
-                        <option value="status" <%= sort == "status" ? "selected" : "" %>>Status</option>
-                    </select>
-                </div>
-
-                <button class="btn btn-success">Apply Filters</button>
-            </form>
         </section>
 
         <% if (games.length === 0) { %>
-            <p>You have no saved games in this view.</p>
-        <% } %>
-
-        <% for (let game of games) { %>
-            <section class="card mb-4 p-3">
-                <h2><%= game.title %></h2>
-
-                <% if (game.cover_image) { %>
-                    <img
-                        src="<%= game.cover_image %>"
-                        alt="<%= game.title %>"
-                        style="max-width: 250px;"
-                    >
-                <% } %>
-
-                <p><strong>Genres:</strong> <%= game.genres || "N/A" %></p>
-                <p><strong>Status:</strong> <%= game.status %></p>
-                <p><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
-                <p><strong>Saved On:</strong> <%= new Date(game.created_at).toLocaleDateString() %></p>
-
-                <div class="mb-3">
-                    <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="btn btn-primary btn-sm">
-                        View Game Page
-                    </a>
+            <section class="card page-card">
+                <div class="card-body text-center p-4">
+                    <p class="mb-0">You have no saved games in this view.</p>
                 </div>
-
-                <form action="/updateSavedGame" method="POST" class="mb-3">
-                    <input type="hidden" name="savedGameId" value="<%= game.id %>">
-
-                    <div class="mb-3">
-                        <label class="form-label">Update Status:</label>
-                        <select name="status" class="form-select">
-                            <option value="Want to Play" <%= game.status == "Want to Play" ? "selected" : "" %>>Want to Play</option>
-                            <option value="Playing" <%= game.status == "Playing" ? "selected" : "" %>>Playing</option>
-                            <option value="Completed" <%= game.status == "Completed" ? "selected" : "" %>>Completed</option>
-                            <option value="Dropped" <%= game.status == "Dropped" ? "selected" : "" %>>Dropped</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Edit Genres:</label>
-                        <input type="text" name="genres" class="form-control" value="<%= game.genres || '' %>">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Favorite:</label>
-                        <input
-                            type="checkbox"
-                            name="is_favorite"
-                            value="1"
-                            <%= game.is_favorite ? "checked" : "" %>
-                        >
-                    </div>
-
-                    <button class="btn btn-success btn-sm">Update Saved Game</button>
-                </form>
-
-                <form action="/deleteSavedGame" method="POST">
-                    <input type="hidden" name="savedGameId" value="<%= game.id %>">
-                    <button class="btn btn-danger btn-sm">Remove From Library</button>
-                </form>
             </section>
         <% } %>
+
+        <div class="row">
+            <% for (let game of games) { %>
+                <div class="col-lg-6 mb-4">
+                    <section class="card page-card h-100">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-4 text-center mb-3 mb-md-0">
+                                    <% if (game.cover_image) { %>
+                                        <img src="<%= game.cover_image %>" alt="<%= game.title %>" class="library-thumb">
+                                    <% } %>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <h3 class="mb-3"><%= game.title %></h3>
+                                    <p class="mb-1"><strong>Genres:</strong> <%= game.genres || "N/A" %></p>
+                                    <p class="mb-1"><strong>Status:</strong> <%= game.status %></p>
+                                    <p class="mb-1"><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
+                                    <p class="mb-3"><strong>Saved On:</strong> <%= new Date(game.created_at).toLocaleDateString() %></p>
+
+                                    <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="btn btn-primary btn-sm mb-3">View Game Page</a>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <form action="/updateSavedGame" method="POST" class="mb-3">
+                                <input type="hidden" name="savedGameId" value="<%= game.id %>">
+
+                                <div class="mb-3">
+                                    <label class="form-label">Update Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="Want to Play" <%= game.status == "Want to Play" ? "selected" : "" %>>Want to Play</option>
+                                        <option value="Playing" <%= game.status == "Playing" ? "selected" : "" %>>Playing</option>
+                                        <option value="Completed" <%= game.status == "Completed" ? "selected" : "" %>>Completed</option>
+                                        <option value="Dropped" <%= game.status == "Dropped" ? "selected" : "" %>>Dropped</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Edit Genres</label>
+                                    <input type="text" name="genres" class="form-control" value="<%= game.genres || '' %>">
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="is_favorite"
+                                        value="1"
+                                        id="favorite_<%= game.id %>"
+                                        <%= game.is_favorite ? "checked" : "" %>
+                                    >
+                                    <label class="form-check-label" for="favorite_<%= game.id %>">
+                                        Favorite
+                                    </label>
+                                </div>
+
+                                <button class="btn btn-success btn-sm">Update Saved Game</button>
+                            </form>
+
+                            <form action="/deleteSavedGame" method="POST">
+                                <input type="hidden" name="savedGameId" value="<%= game.id %>">
+                                <button class="btn btn-danger btn-sm">Remove From Library</button>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            <% } %>
+        </div>
     </main>
 
     <footer>
