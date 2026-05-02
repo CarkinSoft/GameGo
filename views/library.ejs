@@ -13,18 +13,76 @@
     </nav>
 
     <main class="container mt-4">
+        <% if (libraryMessage) { %>
+            <div class="success-message"><%= libraryMessage %></div>
+        <% } %>
+
+        <section class="card mb-4 p-3">
+            <h2 class="mb-3">Library Stats</h2>
+            <div class="row">
+                <div class="col-md-4"><p><strong>Total Games:</strong> <%= stats.totalGames || 0 %></p></div>
+                <div class="col-md-4"><p><strong>Favorites:</strong> <%= stats.favoriteCount || 0 %></p></div>
+                <div class="col-md-4"><p><strong>Want to Play:</strong> <%= stats.wantToPlayCount || 0 %></p></div>
+                <div class="col-md-4"><p><strong>Playing:</strong> <%= stats.playingCount || 0 %></p></div>
+                <div class="col-md-4"><p><strong>Completed:</strong> <%= stats.completedCount || 0 %></p></div>
+                <div class="col-md-4"><p><strong>Dropped:</strong> <%= stats.droppedCount || 0 %></p></div>
+            </div>
+        </section>
+
+        <section class="card mb-4 p-3">
+            <h2 class="mb-3">Filter Library</h2>
+
+            <div class="mb-3">
+                <a href="/library" class="btn btn-primary btn-sm">All Games</a>
+                <a href="/library?view=favorites" class="btn btn-warning btn-sm">Favorites Only</a>
+            </div>
+
+            <form action="/library" method="GET">
+                <div class="mb-3">
+                    <label class="form-label">View:</label>
+                    <select name="view" class="form-select">
+                        <option value="all" <%= view == "all" ? "selected" : "" %>>All Games</option>
+                        <option value="favorites" <%= view == "favorites" ? "selected" : "" %>>Favorites Only</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Status:</label>
+                    <select name="status" class="form-select">
+                        <option value="" <%= status == "" ? "selected" : "" %>>All Statuses</option>
+                        <option value="Want to Play" <%= status == "Want to Play" ? "selected" : "" %>>Want to Play</option>
+                        <option value="Playing" <%= status == "Playing" ? "selected" : "" %>>Playing</option>
+                        <option value="Completed" <%= status == "Completed" ? "selected" : "" %>>Completed</option>
+                        <option value="Dropped" <%= status == "Dropped" ? "selected" : "" %>>Dropped</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Sort By:</label>
+                    <select name="sort" class="form-select">
+                        <option value="newest" <%= sort == "newest" ? "selected" : "" %>>Newest First</option>
+                        <option value="oldest" <%= sort == "oldest" ? "selected" : "" %>>Oldest First</option>
+                        <option value="title" <%= sort == "title" ? "selected" : "" %>>Title A-Z</option>
+                        <option value="status" <%= sort == "status" ? "selected" : "" %>>Status</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-success">Apply Filters</button>
+            </form>
+        </section>
+
         <% if (games.length === 0) { %>
-            <p>You have no saved games yet.</p>
+            <p>You have no saved games in this view.</p>
         <% } %>
 
         <% for (let game of games) { %>
-            <section class="card mb-3 p-3">
+            <section class="card mb-4 p-3">
                 <h2><%= game.title %></h2>
 
                 <% if (game.cover_image) { %>
-                    <img 
-                        src="<%= game.cover_image %>" 
-                        alt="<%= game.title %>" 
+                    <img
+                        src="<%= game.cover_image %>"
+                        alt="<%= game.title %>"
                         style="max-width: 250px;"
                     >
                 <% } %>
@@ -32,11 +90,49 @@
                 <p><strong>Genres:</strong> <%= game.genres || "N/A" %></p>
                 <p><strong>Status:</strong> <%= game.status %></p>
                 <p><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
-                <p><strong>RAWG ID:</strong> <%= game.rawg_game_id %></p>
+                <p><strong>Saved On:</strong> <%= new Date(game.created_at).toLocaleDateString() %></p>
 
-                <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="btn btn-primary">
-                    View Game Page
-                </a>
+                <div class="mb-3">
+                    <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="btn btn-primary btn-sm">
+                        View Game Page
+                    </a>
+                </div>
+
+                <form action="/updateSavedGame" method="POST" class="mb-3">
+                    <input type="hidden" name="savedGameId" value="<%= game.id %>">
+
+                    <div class="mb-3">
+                        <label class="form-label">Update Status:</label>
+                        <select name="status" class="form-select">
+                            <option value="Want to Play" <%= game.status == "Want to Play" ? "selected" : "" %>>Want to Play</option>
+                            <option value="Playing" <%= game.status == "Playing" ? "selected" : "" %>>Playing</option>
+                            <option value="Completed" <%= game.status == "Completed" ? "selected" : "" %>>Completed</option>
+                            <option value="Dropped" <%= game.status == "Dropped" ? "selected" : "" %>>Dropped</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Edit Genres:</label>
+                        <input type="text" name="genres" class="form-control" value="<%= game.genres || '' %>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Favorite:</label>
+                        <input
+                            type="checkbox"
+                            name="is_favorite"
+                            value="1"
+                            <%= game.is_favorite ? "checked" : "" %>
+                        >
+                    </div>
+
+                    <button class="btn btn-success btn-sm">Update Saved Game</button>
+                </form>
+
+                <form action="/deleteSavedGame" method="POST">
+                    <input type="hidden" name="savedGameId" value="<%= game.id %>">
+                    <button class="btn btn-danger btn-sm">Remove From Library</button>
+                </form>
             </section>
         <% } %>
     </main>

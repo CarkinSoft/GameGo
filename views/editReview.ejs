@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<body>
+    <header>
+        <h1>Edit Review</h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <section class="card p-3">
+            <form action="/updateReview" method="POST">
+                <input type="hidden" name="reviewId" value="<%= reviewInfo.id %>">
+                <input type="hidden" name="rawg_game_id" value="<%= reviewInfo.rawg_game_id %>">
+
+                <div class="mb-3">
+                    <label class="form-label">Rating:</label>
+                    <select name="rating" class="form-select">
+                        <option value="1" <%= reviewInfo.rating == 1 ? "selected" : "" %>>1</option>
+                        <option value="2" <%= reviewInfo.rating == 2 ? "selected" : "" %>>2</option>
+                        <option value="3" <%= reviewInfo.rating == 3 ? "selected" : "" %>>3</option>
+                        <option value="4" <%= reviewInfo.rating == 4 ? "selected" : "" %>>4</option>
+                        <option value="5" <%= reviewInfo.rating == 5 ? "selected" : "" %>>5</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Review Title:</label>
+                    <input type="text" name="review_title" class="form-control" value="<%= reviewInfo.review_title %>">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Review Text:</label>
+                    <textarea name="review_text" class="form-control" rows="5"><%= reviewInfo.review_text %></textarea>
+                </div>
+
+                <button class="btn btn-success">Update Review</button>
+                <a href="/gameInfo?gameId=<%= reviewInfo.rawg_game_id %>" class="btn btn-secondary">Cancel</a>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>

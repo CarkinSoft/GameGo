@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<body>
+    <header>
+        <h1><%= profileUser.display_name %>'s Profile</h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <section class="card mb-4 p-3">
+            <img
+                src="<%= profileUser.profile_image || '/img/defaultphoto.jpeg' %>"
+                alt="<%= profileUser.display_name %>"
+                class="profile-hero-img"
+            >
+
+            <p><strong>Display Name:</strong> <%= profileUser.display_name %></p>
+            <p><strong>Username:</strong> <%= profileUser.username %></p>
+            <p><strong>Bio:</strong> <%= profileUser.bio || "No bio yet." %></p>
+            <p><strong>Joined:</strong> <%= new Date(profileUser.created_at).toLocaleDateString() %></p>
+
+            <% if (isOwnProfile) { %>
+                <a href="/editProfile" class="btn btn-primary">Update Profile</a>
+            <% } %>
+        </section>
+
+        <section class="card mb-4 p-3">
+            <h2>Profile Stats</h2>
+            <p><strong>Total Saved Games:</strong> <%= stats.totalSaved || 0 %></p>
+            <p><strong>Total Favorites:</strong> <%= stats.totalFavorites || 0 %></p>
+            <p><strong>Total Reviews:</strong> <%= reviewStats.totalReviews || 0 %></p>
+        </section>
+
+        <section class="card mb-4 p-3">
+            <h2>Featured Games</h2>
+
+            <% if (!featuredGames || featuredGames.length === 0) { %>
+                <p>No featured games selected.</p>
+            <% } %>
+
+            <div class="row">
+                <% for (let game of featuredGames) { %>
+                    <div class="col-md-4 mb-4">
+                        <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="game-card-link d-block">
+                            <div class="card p-3 h-100 search-card">
+                                <h3><%= game.title %></h3>
+
+                                <% if (game.cover_image) { %>
+                                    <img src="<%= game.cover_image %>" alt="<%= game.title %>">
+                                <% } %>
+
+                                <p><strong>Status:</strong> <%= game.status %></p>
+                                <p><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
+                            </div>
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>
