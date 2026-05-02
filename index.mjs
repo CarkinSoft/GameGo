@@ -44,6 +44,32 @@ function shuffleArray(array) {
     }
 }
 
+// Function to remove NSFW content from RAWG api
+function isCleanGame(game) {
+    let badWords = ["hentai", "porn", "sex", "adult", "erotic", "nude", "nsfw"];
+    let gameName = "";
+
+    if (game.name) {
+        gameName = game.name.toLowerCase();
+    }
+
+    for (let i = 0; i < badWords.length; i++) {
+        if (gameName.includes(badWords[i])) {
+            return false;
+        }
+    }
+
+    if (game.esrb_rating && game.esrb_rating.name) {
+        let ratingName = game.esrb_rating.name.toLowerCase();
+
+        if (ratingName.includes("adults only")) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 async function getSavedRows(userId) {
     let sql = `SELECT rawg_game_id, genres
                FROM saved_games
@@ -323,25 +349,66 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let today = new Date().toISOString().split("T")[0];
         let yearStart = `${new Date().getFullYear()}-01-01`;
 
-        let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=30`;
+        let popularPage = Math.floor(Math.random() * 3) + 1;
+        let currentPopularPage = Math.floor(Math.random() * 3) + 1;
+        let recommendedPage = Math.floor(Math.random() * 3) + 1;
+
+        let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=30&page=${popularPage}`;
         let popularResponse = await fetch(popularUrl);
         let popularData = await popularResponse.json();
-        let popularGames = popularData.results || [];
+        let popularResults = popularData.results || [];
+        let popularGames = [];
+
+        for (let i = 0; i < popularResults.length; i++) {
+            if (isCleanGame(popularResults[i])) {
+                popularGames.push(popularResults[i]);
+            }
+        }
+
         shuffleArray(popularGames);
         popularGames = popularGames.slice(0, 18);
 
-        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=30`;
+        let currentPopularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-added&page_size=30&page=${currentPopularPage}`;
+        let currentPopularResponse = await fetch(currentPopularUrl);
+        let currentPopularData = await currentPopularResponse.json();
+        let currentPopularResults = currentPopularData.results || [];
+        let currentPopularGames = [];
+
+        for (let i = 0; i < currentPopularResults.length; i++) {
+            if (isCleanGame(currentPopularResults[i])) {
+                currentPopularGames.push(currentPopularResults[i]);
+            }
+        }
+
+        shuffleArray(currentPopularGames);
+        currentPopularGames = currentPopularGames.slice(0, 18);
+
+        let topRatedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-rating&page_size=18&page=1`;
         let topRatedResponse = await fetch(topRatedUrl);
         let topRatedData = await topRatedResponse.json();
-        let topRatedGames = topRatedData.results || [];
-        shuffleArray(topRatedGames);
+        let topRatedResults = topRatedData.results || [];
+        let topRatedGames = [];
+
+        for (let i = 0; i < topRatedResults.length; i++) {
+            if (isCleanGame(topRatedResults[i])) {
+                topRatedGames.push(topRatedResults[i]);
+            }
+        }
+
         topRatedGames = topRatedGames.slice(0, 18);
 
-        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=30`;
+        let recentUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&dates=${yearStart},${today}&ordering=-released&page_size=18&page=1`;
         let recentResponse = await fetch(recentUrl);
         let recentData = await recentResponse.json();
-        let recentGames = recentData.results || [];
-        shuffleArray(recentGames);
+        let recentResults = recentData.results || [];
+        let recentGames = [];
+
+        for (let i = 0; i < recentResults.length; i++) {
+            if (isCleanGame(recentResults[i])) {
+                recentGames.push(recentResults[i]);
+            }
+        }
+
         recentGames = recentGames.slice(0, 18);
 
         let savedRows = await getSavedRows(userId);
@@ -392,7 +459,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
 
             topGenre = genreNames[highestIndex];
 
-            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${topGenre}&page_size=30`;
+            let recommendedUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${topGenre}&page_size=30&page=${recommendedPage}`;
             let recommendedResponse = await fetch(recommendedUrl);
             let recommendedData = await recommendedResponse.json();
 
@@ -408,7 +475,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
                         }
                     }
 
-                    if (!alreadySaved) {
+                    if (!alreadySaved && isCleanGame(game)) {
                         recommendedGames.push(game);
                     }
                 }
@@ -421,20 +488,21 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
+        res.render('browse.ejs', {recommendedGames, topGenre, currentPopularGames, popularGames, topRatedGames, recentGames, authenticated, username});
 
     } catch (err) {
         console.error("Browse page error:", err);
 
         let recommendedGames = [];
         let topGenre = "";
+        let currentPopularGames = [];
         let popularGames = [];
         let topRatedGames = [];
         let recentGames = [];
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
+        res.render('browse.ejs', {recommendedGames, topGenre, currentPopularGames, popularGames, topRatedGames, recentGames, authenticated, username});
     }
 });
 

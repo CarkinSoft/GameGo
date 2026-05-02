@@ -4,7 +4,7 @@
     <%- include("partials/head.ejs") %>
 </head>
 <body>
-    <header>
+    <header class="page-title">
         <h1><%= profileUser.display_name %>'s Profile</h1>
     </header>
 
@@ -12,55 +12,87 @@
         <%- include("partials/nav.ejs") %>
     </nav>
 
-    <main class="container mt-4">
-        <section class="card mb-4 p-3">
-            <img
-                src="<%= profileUser.profile_image || '/img/defaultphoto.jpeg' %>"
-                alt="<%= profileUser.display_name %>"
-                class="profile-hero-img"
-            >
+    <main class="container py-4">
+        <section class="card page-card mb-4">
+            <div class="card-body text-center p-4">
+                <img
+                    src="<%= profileUser.profile_image || '/img/defaultphoto.jpeg' %>"
+                    alt="<%= profileUser.display_name %>"
+                    class="profile-img-lg mb-3"
+                >
 
-            <p><strong>Display Name:</strong> <%= profileUser.display_name %></p>
-            <p><strong>Username:</strong> <%= profileUser.username %></p>
-            <p><strong>Bio:</strong> <%= profileUser.bio || "No bio yet." %></p>
-            <p><strong>Joined:</strong> <%= new Date(profileUser.created_at).toLocaleDateString() %></p>
+                <h3 class="mb-3"><%= profileUser.display_name %></h3>
 
-            <% if (isOwnProfile) { %>
-                <a href="/editProfile" class="btn btn-primary">Update Profile</a>
-            <% } %>
-        </section>
-
-        <section class="card mb-4 p-3">
-            <h2>Profile Stats</h2>
-            <p><strong>Total Saved Games:</strong> <%= stats.totalSaved || 0 %></p>
-            <p><strong>Total Favorites:</strong> <%= stats.totalFavorites || 0 %></p>
-            <p><strong>Total Reviews:</strong> <%= reviewStats.totalReviews || 0 %></p>
-        </section>
-
-        <section class="card mb-4 p-3">
-            <h2>Featured Games</h2>
-
-            <% if (!featuredGames || featuredGames.length === 0) { %>
-                <p>No featured games selected.</p>
-            <% } %>
-
-            <div class="row">
-                <% for (let game of featuredGames) { %>
-                    <div class="col-md-4 mb-4">
-                        <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="game-card-link d-block">
-                            <div class="card p-3 h-100 search-card">
-                                <h3><%= game.title %></h3>
-
-                                <% if (game.cover_image) { %>
-                                    <img src="<%= game.cover_image %>" alt="<%= game.title %>">
-                                <% } %>
-
-                                <p><strong>Status:</strong> <%= game.status %></p>
-                                <p><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
-                            </div>
-                        </a>
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <p class="mb-2"><strong>Username:</strong> <%= profileUser.username %></p>
+                        <p class="mb-2"><strong>Bio:</strong> <%= profileUser.bio || "No bio yet." %></p>
+                        <p class="mb-3"><strong>Joined:</strong> <%= new Date(profileUser.created_at).toLocaleDateString() %></p>
                     </div>
+                </div>
+
+                <% if (isOwnProfile) { %>
+                    <a href="/editProfile" class="btn btn-primary px-4">Update Profile</a>
                 <% } %>
+            </div>
+        </section>
+
+        <section class="card page-card mb-4">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">Profile Stats</h2>
+
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 bg-light">
+                            <h5>Total Saved Games</h5>
+                            <p class="mb-0"><%= stats.totalSaved || 0 %></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 bg-light">
+                            <h5>Total Favorites</h5>
+                            <p class="mb-0"><%= stats.totalFavorites || 0 %></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 bg-light">
+                            <h5>Total Reviews</h5>
+                            <p class="mb-0"><%= reviewStats.totalReviews || 0 %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card page-card">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">Featured Games</h2>
+
+                <% if (!featuredGames || featuredGames.length === 0) { %>
+                    <p class="text-center mb-0">No featured games selected.</p>
+                <% } %>
+
+                <div class="row">
+                    <% for (let game of featuredGames) { %>
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <a href="/gameInfo?gameId=<%= game.rawg_game_id %>" class="text-decoration-none text-dark">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <% if (game.cover_image) { %>
+                                            <img src="<%= game.cover_image %>" alt="<%= game.title %>" class="featured-thumb mb-3">
+                                        <% } %>
+
+                                        <h5 class="card-title"><%= game.title %></h5>
+                                        <p class="mb-1"><strong>Status:</strong> <%= game.status %></p>
+                                        <p class="mb-0"><strong>Favorite:</strong> <%= game.is_favorite ? "Yes" : "No" %></p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
             </div>
         </section>
     </main>
