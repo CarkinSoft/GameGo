@@ -115,17 +115,17 @@ img {
 .browse-carousel-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 12px;
     width: 100%;
 }
 
 .browse-track {
     display: flex;
-    gap: 1rem;
+    gap: 16px;
     overflow-x: auto;
-    scroll-behavior: smooth;
     width: 100%;
-    padding: 0.5rem 0;
+    padding: 8px 0;
+    scroll-behavior: smooth;
 }
 
 .browse-track::-webkit-scrollbar {
@@ -134,35 +134,30 @@ img {
 
 .browse-card {
     flex: 0 0 260px;
-    border: 1px solid #ddd;
-    border-radius: 0.75rem;
     background-color: white;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
 }
 
 .browse-card img {
-    max-width: 100%;
+    width: 100%;
     height: 220px;
     object-fit: cover;
-    margin-bottom: 0.75rem;
-    border-radius: 0.5rem;
+    border-radius: 8px;
+    margin-bottom: 12px;
 }
 
 .carousel-btn {
-    border: none;
-    background-color: darkslateblue;
-    color: white;
-    font-size: 1.5rem;
     width: 42px;
     height: 42px;
+    border: none;
     border-radius: 50%;
+    background-color: darkslateblue;
+    color: white;
+    font-size: 24px;
     cursor: pointer;
     flex-shrink: 0;
-}
-
-.carousel-btn:hover {
-    opacity: 0.9;
 }
 
 .game-card-link,
@@ -175,14 +170,6 @@ img {
 .game-card-link .card,
 .browse-card-link .browse-card {
     cursor: pointer;
-    transition: transform 0.15s ease;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.game-card-link:hover .card,
-.browse-card-link:hover .browse-card {
-    transform: translateY(-4px);
 }
 
 .search-card img {
@@ -190,7 +177,7 @@ img {
     height: 260px;
     object-fit: cover;
     border-radius: 10px;
-    margin-bottom: 0.75rem;
+    margin-bottom: 12px;
 }
 
 .profile-review-img {
@@ -205,5 +192,5 @@ img {
     height: 140px;
     object-fit: cover;
     border-radius: 50%;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
 }
