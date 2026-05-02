@@ -46,7 +46,7 @@ function shuffleArray(array) {
 
 // Function to remove NSFW content from RAWG api
 function isCleanGame(game) {
-    let badWords = ["hentai", "porn", "sex", "adult", "erotic", "nude", "nsfw"];
+    let badWords = ["hentai", "porn", "sex", "adult", "erotic", "nude", "nsfw", "loli"];
     let gameName = "";
 
     if (game.name) {
