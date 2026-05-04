@@ -34,7 +34,8 @@
                 <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(2) %>%</p>
                 <p><strong>Metacritic Score:</strong> <%= deal.metacriticScore %></p>
                 <p><strong>Release Date:</strong> <%= new Date(deal.releaseDate * 1000).toLocaleDateString() %></p>
-                <a href="https://www.cheapshark.com/redirect?dealID=<%= deal.dealID %>" target="_blank" class="btn btn-primary">View Deal</a>
+                <button class="btn btn-secondary mb-2" onclick="window.location.href='/gameInfo?gameName=<%= deal.gamename %>'">View Game Info</button>
+                <a href="https://www.cheapshark.com/redirect?dealID=<%= deal.dealID %>" target="_blank" class="btn btn-primary">Go to Store Page</a>
             </section>
         <% } %>
     </main>
