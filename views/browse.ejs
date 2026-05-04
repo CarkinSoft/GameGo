@@ -62,23 +62,6 @@
 
             <div class="browse-carousel-wrapper">
 
-                <div class="browse-track" id="popularTrack">
-                    <% for (let game of popularGames) { %>
-                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
-                            <div class="browse-card">
-                                <h3><%= game.name %></h3>
-
-                                <% if (game.background_image) { %>
-                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
-                                <% } %>
-
-                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
-                            </div>
-                        </a>
-                    <% } %>
-                </div>
-
                 <% if (recommendedGames.length > 0) { %>
                     <div class="browse-carousel-wrapper">
                         <button class="carousel-btn left" data-track="recommendedTrack">&#10094;</button>
