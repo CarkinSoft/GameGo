@@ -22,24 +22,24 @@
                 <button class="carousel-btn left" data-track="bestDealsTrack">&#10094;</button>
 
                 <div class="browse-track" id="bestDealsTrack">
-                    <% for (let game of topDeals) { %>
-                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                    <% for (let deal of topDeals) { %>
+                        <a href="/gameInfo?gameName=<%= encodeURIComponent(deal.title) %>" class="browse-card-link">
                             <div class="browse-card">
-                                <h3><%= game.name %></h3>
+                                <h3><%= deal.title %></h3>
 
-                                <% if (game.background_image) { %>
-                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                <% if (deal.thumb) { %>
+                                    <img src="<%= deal.thumb %>" alt="<%= deal.title %>">
                                 <% } %>
 
-                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                                <p><strong>Sale Price:</strong> $<%= parseFloat(deal.salePrice).toFixed(2) %></p>
+                                <p><strong>Normal Price:</strong> <s>$<%= parseFloat(deal.normalPrice).toFixed(2) %></s></p>
+                                <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(0) %>% off</p>
                             </div>
                         </a>
                     <% } %>
                 </div>
 
-                <button class="carousel-btn right" data-track="bestDealsTrack\
-                ">&#10095;</button>
+                <button class="carousel-btn right" data-track="bestDealsTrack">&#10095;</button>
             </div>
         </section>
 

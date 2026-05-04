@@ -242,9 +242,19 @@ app.get('/searchGame', isUserAuthenticated, async (req, res) => {
 // Game page
 app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
     let gameId = req.query.gameId;
+    let gameName = req.query.gameName;
     let userId = req.session.userId;
 
     try {
+        if (!gameId && gameName) {
+            let searchUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(gameName)}&page_size=1`;
+            let searchResponse = await fetch(searchUrl);
+            let searchData = await searchResponse.json();
+            if (searchData.results && searchData.results.length > 0) {
+                gameId = searchData.results[0].id;
+            }
+        }
+
         let url = `https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_KEY}`;
 
         let response = await fetch(url);
@@ -281,10 +291,22 @@ app.get('/gameInfo', isUserAuthenticated, async (req, res) => {
             currentUserReview = myReviewRows[0];
         }
 
+        let dealInfo = null;
+        try {
+            let dealUrl = `https://www.cheapshark.com/api/1.0/deals?title=${encodeURIComponent(game.name)}&storeID=1&pageSize=3&sortBy=DealRating`;
+            let dealResponse = await fetch(dealUrl);
+            let dealData = await dealResponse.json();
+            if (dealData && dealData.length > 0) {
+                dealInfo = dealData[0];
+            }
+        } catch (dealErr) {
+            console.error("CheapShark deal lookup error:", dealErr);
+        }
+
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('game.ejs', { game, reviews, savedGame, currentUserReview, userId, authenticated, username });
+        res.render('game.ejs', { game, reviews, savedGame, currentUserReview, userId, dealInfo, authenticated, username });
 
     } catch (err) {
         console.error("RAWG API error:", err);
@@ -299,6 +321,10 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
     try {
         let today = new Date().toISOString().split("T")[0];
         let yearStart = `${new Date().getFullYear()}-01-01`;
+
+        let dealsUrl = `https://www.cheapshark.com/api/1.0/deals?storeID=1&pageSize=10&sortBy=DealRating`;
+        let dealsResponse = await fetch(dealsUrl);
+        let topDeals = await dealsResponse.json();
 
         let popularUrl = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&ordering=-added&page_size=12`;
         let popularResponse = await fetch(popularUrl);
@@ -391,7 +417,7 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('browse.ejs', { popularGames, topRatedGames, recentGames, recommendedGames, topGenre, authenticated, username });
+        res.render('browse.ejs', { topDeals, popularGames, topRatedGames, recentGames, recommendedGames, topGenre, authenticated, username });
 
     } catch (err) {
         console.error("Browse page error:", err);
@@ -825,7 +851,7 @@ app.post('/editProfile', isUserAuthenticated, async (req, res) => {
 
         await pool.query(sql, sqlParams);
 
-        res.redirect('/editProfile?profileSuccess=Profile updated successfully.');
+        res.redirect('/profile');
 
     } catch (err) {
         console.error("Profile update error:", err);
