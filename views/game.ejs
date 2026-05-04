@@ -75,10 +75,8 @@
         </section>
 
         <div class="row g-4 mb-4">
-
-            <!-- Current Deal -->
             <div class="col-md-6">
-                <section class="card page-card h-100 p-4">
+                <section class="card page-card h-100 p-4 text-center">
                     <h2>Current Deal</h2>
 
                     <% if (dealInfo) { %>
@@ -86,21 +84,22 @@
                         <p><strong>Normal Price:</strong> $<%= dealInfo.normalPrice %></p>
                         <p><strong>Discount:</strong> <%= Math.round(dealInfo.savings) %>% off</p>
 
-                        <a 
-                            href="https://www.cheapshark.com/redirect?dealID=<%= dealInfo.dealID %>" 
-                            target="_blank" 
-                            class="btn btn-primary w-100 mt-3">
-                            Go to Store Page
-                        </a>
+                        <div class="deal-btn-wrap mt-3">
+                            <a 
+                                href="https://www.cheapshark.com/redirect?dealID=<%= dealInfo.dealID %>" 
+                                target="_blank" 
+                                class="btn btn-primary game-btn">
+                                Go to Store Page
+                            </a>
+                        </div>
                     <% } else { %>
                         <p>No current deal available.</p>
                     <% } %>
                 </section>
             </div>
 
-            <!-- Library Controls -->
             <div class="col-md-6">
-                <section class="card page-card h-100 p-4">
+                <section class="card page-card h-100 p-4 text-center">
                     <h2>Library Controls</h2>
 
                     <% if (savedGame) { %>
@@ -109,7 +108,7 @@
                         <p><strong>Favorite:</strong> <%= savedGame.is_favorite ? "Yes" : "No" %></p>
                     <% } %>
 
-                    <form id="saveGameForm">
+                    <form id="saveGameForm" class="game-form-narrow">
                         <input type="hidden" name="rawg_game_id" value="<%= game.id %>">
                         <input type="hidden" name="title" value="<%= game.name %>">
                         <input type="hidden" name="cover_image" value="<%= game.background_image %>">
@@ -140,13 +139,14 @@
                             </label>
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100">
-                            <%= savedGame ? "Update Saved Game" : "Save Game" %>
-                        </button>
+                        <div class="form-btn-wrap">
+                            <button type="submit" class="btn btn-success game-btn">
+                                <%= savedGame ? "Update Saved Game" : "Save Game" %>
+                            </button>
+                        </div>
                     </form>
                 </section>
             </div>
-
         </div>
         </section>
 
