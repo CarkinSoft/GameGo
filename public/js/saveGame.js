@@ -1,51 +1,25 @@
-document.querySelector("#saveGameForm").addEventListener("submit", saveGame);
+let form = document.querySelector("#saveGameForm");
+let message = document.querySelector("#feedbackDiv");
 
-let feedbackDiv = document.querySelector("#feedbackDiv");
-feedbackDiv.style.display = "none";
-
-async function saveGame(event) {
+form.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    let rawgGameId = document.querySelector("input[name=rawg_game_id]").value;
-    let title = document.querySelector("input[name=title]").value;
-    let coverImage = document.querySelector("input[name=cover_image]").value;
-    let genres = document.querySelector("input[name=genres]").value;
-    let status = document.querySelector("select[name=status]").value;
-    let isFavorite = document.querySelector("input[name=is_favorite]").checked ? 1 : 0;
-
-    if (status == "") {
-        feedbackDiv.style.display = "block";
-        feedbackDiv.textContent = "Error: please select a status";
-        feedbackDiv.style.color = "red";
-        return;
-    }
-
-    let formData = new URLSearchParams();
-    formData.append("rawg_game_id", rawgGameId);
-    formData.append("title", title);
-    formData.append("cover_image", coverImage);
-    formData.append("genres", genres);
-    formData.append("status", status);
-    formData.append("is_favorite", isFavorite);
+    let formData = new FormData(form);
 
     let response = await fetch("/saveGame", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formData
+        body: new URLSearchParams(formData)
     });
 
     let data = await response.json();
 
-    feedbackDiv.style.display = "block";
+    message.style.display = "block";
 
     if (data.error) {
-        feedbackDiv.textContent = data.error;
-        feedbackDiv.style.color = "red";
+        message.textContent = data.error;
+        message.className = "mt-3 fw-bold text-danger";
+    } else {
+        message.textContent = data.success;
+        message.className = "mt-3 fw-bold text-success";
     }
-    else {
-        feedbackDiv.textContent = data.success;
-        feedbackDiv.style.color = "green";
-    }
-}
+});
