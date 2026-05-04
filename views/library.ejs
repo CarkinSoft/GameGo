@@ -166,7 +166,7 @@
                                     <input type="text" name="genres" class="form-control" value="<%= game.genres || '' %>">
                                 </div>
 
-                                <div class="form-check mb-3">
+                                <div class="form-check form-check-inline">
                                     <input
                                         class="form-check-input"
                                         type="checkbox"
@@ -175,10 +175,10 @@
                                         id="favorite_<%= game.id %>"
                                         <%= game.is_favorite ? "checked" : "" %>
                                     >
-                                    <label class="form-check-label" for="favorite_<%= game.id %>">
+                                    <label class="form-check-label ms-2" for="favorite_<%= game.id %>">
                                         Favorite
                                     </label>
-                                </div>
+                                </div><br><br>
 
                                 <button class="btn btn-success btn-sm">Update Saved Game</button>
                             </form>

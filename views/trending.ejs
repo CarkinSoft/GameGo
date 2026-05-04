@@ -5,7 +5,7 @@
 </head>
 <body>
     <header>
-        <h1>Trending Games</h1>
+        <h1>Trending Deals</h1>
     </header>
 
     <nav>
@@ -13,30 +13,64 @@
     </nav>
 
     <main class="container mt-4">
-        <% if (deals.length === 0) { %>
-            <p>No trending games available at the moment.</p>
+        <% if (deals.length == 0) { %>
+            <p>No trending deals available at the moment.</p>
         <% } %>
 
-        <% for (let deal of deals) { %>
-            <section class="card mb-3 p-3">
-                <h2><%= deal.title %></h2>
+        <div class="row">
+            <% for (let deal of deals) { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3 h-100 search-card">
+                        <h3><%= deal.title %></h3>
 
-                <% if (deal.thumb) { %>
-                    <img 
-                        src="<%= deal.thumb %>" 
-                        alt="<%= deal.title %>" 
-                        class="deal-thumb"
-                    >
+                        <% if (deal.thumb) { %>
+                            <img src="<%= deal.thumb %>" alt="<%= deal.title %>">
+                        <% } %>
+
+                        <p><strong>Normal Price:</strong> $<%= parseFloat(deal.normalPrice).toFixed(2) %></p>
+                        <p><strong>Sale Price:</strong> $<%= parseFloat(deal.salePrice).toFixed(2) %></p>
+                        <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(2) %>%</p>
+                        <p><strong>Metacritic Score:</strong> <%= deal.metacriticScore || "N/A" %></p>
+
+                        <% if (deal.releaseDate) { %>
+                            <p><strong>Release Date:</strong> <%= new Date(deal.releaseDate * 1000).toLocaleDateString() %></p>
+                        <% } else { %>
+                            <p><strong>Release Date:</strong> N/A</p>
+                        <% } %>
+
+                        <button 
+                            class="btn btn-secondary mb-2" 
+                            onclick="window.location.href='/gameInfo?gameName=<%= encodeURIComponent(deal.title) %>'">
+                            View Game Info
+                        </button>
+
+                        <a 
+                            href="https://www.cheapshark.com/redirect?dealID=<%= deal.dealID %>" 
+                            target="_blank" 
+                            class="btn btn-primary">
+                            Go to Store Page
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+            <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+                <% if (currentPage > 1) { %>
+                    <a class="btn btn-outline-primary" href="/trending?page=<%= currentPage - 1 %>">
+                        Previous
+                    </a>
                 <% } %>
 
-                <p><strong>Normal Price:</strong> $<%= parseFloat(deal.normalPrice).toFixed(2) %></p>
-                <p><strong>Sale Price:</strong> $<%= parseFloat(deal.salePrice).toFixed(2) %></p>
-                <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(2) %>%</p>
-                <p><strong>Metacritic Score:</strong> <%= deal.metacriticScore %></p>
-                <p><strong>Release Date:</strong> <%= new Date(deal.releaseDate * 1000).toLocaleDateString() %></p>
-                <button class="btn btn-secondary mb-2" onclick="window.location.href='/gameInfo?gameName=<%= deal.gamename %>'">View Game Info</button>
-                <a href="https://www.cheapshark.com/redirect?dealID=<%= deal.dealID %>" target="_blank" class="btn btn-primary">Go to Store Page</a>
-            </section>
+                <span>Page <%= currentPage %> of <%= totalPages %></span>
+
+                <% if (currentPage < totalPages) { %>
+                    <a class="btn btn-outline-primary" href="/trending?page=<%= currentPage + 1 %>">
+                        Next
+                    </a>
+                <% } %>
+            </div>
         <% } %>
     </main>
 
