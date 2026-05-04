@@ -14,27 +14,29 @@
 
     <main class="container py-4">
         <section class="card page-card mb-4">
-            <div class="card-body text-center p-4">
-                <img
-                    src="<%= profileUser.profile_image || '/img/defaultphoto.jpeg' %>"
-                    alt="<%= profileUser.display_name %>"
-                    class="profile-img-lg mb-3"
-                >
+            <div class="card p-4 mb-4">
 
-                <h3 class="mb-3"><%= profileUser.display_name %></h3>
+                <div class="row align-items-center justify-content-center text-center text-md-start">
 
-                <div class="row justify-content-center">
-                    <div class="col-md-8 col-lg-6">
-                        <p class="mb-2"><strong>Username:</strong> <%= profileUser.username %></p>
-                        <p class="mb-2"><strong>Bio:</strong> <%= profileUser.bio || "No bio yet." %></p>
-                        <p class="mb-3"><strong>Joined:</strong> <%= new Date(profileUser.created_at).toLocaleDateString() %></p>
+                    <div class="col-md-3 d-flex justify-content-center mb-3 mb-md-0">
+                        <img src="<%= profileUser.profile_image %>" class="profile-img-lg">
+                    </div>
+
+                    <div class="col-md-6">
+                        <h2><%= profileUser.display_name %></h2>
+                        <p><strong>Username:</strong> <%= profileUser.username %></p>
+                        <p><strong>Bio:</strong> <%= profileUser.bio || "No bio yet." %></p>
+                        <p><strong>Joined:</strong> <%= new Date(profileUser.created_at).toLocaleDateString() %></p>
                     </div>
                 </div>
-
-                <% if (isOwnProfile) { %>
-                    <a href="/editProfile" class="btn btn-primary px-4">Update Profile</a>
-                <% } %>
             </div>
+            <% if (isOwnProfile) { %>
+                    <div class="text-center mt-3">
+                        <a href="/editProfile" class="btn btn-primary">
+                            Update Profile
+                        </a>
+                    </div>
+                <% } %>
         </section>
 
         <section class="card page-card mb-4">

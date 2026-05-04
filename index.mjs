@@ -498,11 +498,8 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-<<<<<<<<< Temporary merge branch 1
-        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
-=========
         res.render('browse.ejs', { topDeals, popularGames, topRatedGames, recentGames, recommendedGames, topGenre, authenticated, username });
->>>>>>>>> Temporary merge branch 2
+
 
     } catch (err) {
         console.error("Browse page error:", err);
@@ -712,17 +709,27 @@ app.post('/deleteSavedGame', isUserAuthenticated, async (req, res) => {
 });
 
 // Trending page
+// Trending page
 app.get('/trending', isUserAuthenticated, async (req, res) => {
-    try {
-        let url = `https://www.cheapshark.com/api/1.0/deals?storeID=1&pageSize=10&maxAge=72`;
-        let response = await fetch(url);
-        let dealData = await response.json();
+    let currentPage = parseInt(req.query.page) || 1;
+    let pageSize = 12;
 
-        let deals = dealData;
+    if (currentPage < 1) {
+        currentPage = 1;
+    }
+
+    try {
+        let url = `https://www.cheapshark.com/api/1.0/deals?storeID=1&pageSize=${pageSize}&pageNumber=${currentPage - 1}&maxAge=72&sortBy=DealRating`;
+
+        let response = await fetch(url);
+        let deals = await response.json();
+
+        let totalPages = parseInt(response.headers.get("X-Total-Page-Count")) || 1;
+
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('trending.ejs', { deals, authenticated, username });
+        res.render('trending.ejs', { deals, currentPage, totalPages, authenticated, username });
     } catch (err) {
         console.error("Error fetching trending games:", err);
         res.status(500).send("Error fetching trending games!");
