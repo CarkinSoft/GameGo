@@ -1,11 +1,22 @@
+:root {
+    --icy-blue: #8b40fa;
+    --cornflower: #7692FF;
+    --persian-blue: #303a8f;
+    --dusk-blue: #3D518C;
+    --deep-navy: #091540;
+    --purple: #00120B;
+    --white: #FFFFFF;
+    --shadow: rgba(9, 21, 64, 0.25);
+}
+
 body {
     min-height: 100vh;
     margin: 0;
     display: flex;
     flex-direction: column;
     text-align: center;
-    background-color: #f8f9fa;
-    color: #212529;
+    background: linear-gradient(135deg, var(--deep-navy), var(--persian-blue), var(--icy-blue));
+    color: var(--deep-navy);
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.5;
 }
@@ -27,23 +38,30 @@ h1 {
     justify-content: center;
     align-items: center;
     margin-bottom: 1rem;
-    color: darkslateblue;
+    color: var(--icy-blue);
     font-size: 2.5rem;
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 2px 2px 4px var(--shadow);
 }
 
 h2 {
     margin-bottom: 1rem;
     font-weight: 600;
+    color: #8b40fa;
+}
+
+h3,
+h4,
+h5 {
+    color: var(--persian-blue);
 }
 
 img {
     display: block;
     margin: 0 auto;
-    max-width: 100%;
+    max-width: 800%;
     height: auto;
     object-fit: cover;
 }
@@ -51,10 +69,10 @@ img {
 .card,
 .page-card,
 .browse-card {
-    background-color: #fff;
-    border: none;
+    background-color: rgba(205, 205, 205, 0.92);
+    border: 1px solid rgba(171, 210, 250, 0.5);
     border-radius: 0.75rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px var(--shadow);
 }
 
 .card,
@@ -88,11 +106,11 @@ img {
 }
 
 .success-message {
-    color: green;
+    color: var(--persian-blue);
 }
 
 .error-message {
-    color: red;
+    color: #b71b1b;
 }
 
 .game-card-link,
@@ -111,8 +129,8 @@ img {
     margin-top: auto;
     width: 100%;
     padding: 1rem;
-    background-color: #212529;
-    color: white;
+    background-color: var(--deep-navy);
+    color: var(--icy-blue);
     text-align: left;
     font-weight: 600;
 }
@@ -123,7 +141,6 @@ img {
     letter-spacing: 0.3px;
 }
 
-/* Shared image sizes */
 .search-card img,
 .library-thumb,
 .featured-thumb {
@@ -150,6 +167,12 @@ img {
     border-radius: 50%;
 }
 
+.home-logo-img {
+    max-width: 700px;
+    width: 300%;
+    height: auto;
+}
+
 .profile-review-img {
     width: 55px;
     height: 55px;
@@ -166,13 +189,14 @@ img {
     max-width: 250px;
     padding: 0.5rem;
     border-radius: 0.5rem;
-    background-color: darkslateblue;
+    background-color: var(--persian-blue);
 }
 
-/* Browse page */
 .browse-panel {
     padding: 2rem;
     border-radius: 1.25rem;
+    background-color: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 8px 20px var(--shadow);
 }
 
 .browse-header {
@@ -185,11 +209,13 @@ img {
     font-size: 0.9rem;
     font-weight: bold;
     letter-spacing: 1px;
+    color: var(--persian-blue);
 }
 
 .browse-header h2 {
     margin-bottom: 0.5rem;
     font-size: 2.2rem;
+    color: var(--deep-navy);
 }
 
 .browse-header p {
@@ -224,7 +250,7 @@ img {
 .browse-card {
     width: 340px;
     overflow: hidden;
-    border: 1px solid #ddd;
+    border: 1px solid var(--icy-blue);
 }
 
 .browse-card img {
@@ -251,9 +277,14 @@ img {
     font-size: 1.5rem;
     cursor: pointer;
     flex-shrink: 0;
+    background-color: var(--persian-blue);
+    color: var(--white);
 }
 
-/* Smaller screens */
+.carousel-btn:hover {
+    background-color: var(--deep-navy);
+}
+
 @media (max-width: 768px) {
     h1 {
         font-size: 2rem;
@@ -285,7 +316,7 @@ img {
     .landing-body {
         margin: 0;
         min-height: 100vh;
-        background: #070b1a;
+        background: var(--deep-navy);
         font-family: Arial, sans-serif;
         color: white;
     }
@@ -303,9 +334,9 @@ img {
         align-items: center;
         padding: 70px;
         background:
-            radial-gradient(circle at top left, rgba(108, 99, 255, 0.45), transparent 35%),
-            radial-gradient(circle at bottom right, rgba(0, 255, 204, 0.25), transparent 30%),
-            linear-gradient(135deg, #090d24, #151a3d);
+            radial-gradient(circle at top left, rgba(118, 146, 255, 0.45), transparent 35%),
+            radial-gradient(circle at bottom right, rgba(171, 210, 250, 0.25), transparent 30%),
+            linear-gradient(135deg, var(--deep-navy), var(--dusk-blue));
     }
 
     .hero-content {
@@ -314,7 +345,7 @@ img {
     }
 
     .eyebrow {
-        color: #00ffcc;
+        color: var(--icy-blue);
         font-weight: bold;
         letter-spacing: 3px;
         margin-bottom: 15px;
@@ -324,12 +355,12 @@ img {
         font-size: 5rem;
         font-weight: 900;
         margin-bottom: 20px;
-        text-shadow: 0 0 25px rgba(108, 99, 255, 0.9);
+        text-shadow: 0 0 25px rgba(118, 146, 255, 0.9);
     }
 
     .hero-text {
         font-size: 1.3rem;
-        color: #d7d9ff;
+        color: var(--icy-blue);
         line-height: 1.6;
     }
 
@@ -338,7 +369,7 @@ img {
         justify-content: center;
         align-items: center;
         padding: 40px;
-        background: #0d1028;
+        background: var(--deep-navy);
     }
 
     .login-card {
@@ -346,8 +377,8 @@ img {
         max-width: 400px;
         padding: 35px;
         border-radius: 22px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(171, 210, 250, 0.1);
+        border: 1px solid rgba(171, 210, 250, 0.25);
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
         backdrop-filter: blur(15px);
     }
@@ -358,12 +389,12 @@ img {
     }
 
     .login-subtitle {
-        color: #b9bee8;
+        color: var(--icy-blue);
         margin-bottom: 25px;
     }
 
     .login-card label {
-        color: #e7e9ff;
+        color: var(--white);
         font-weight: bold;
         margin-bottom: 6px;
     }
@@ -371,20 +402,20 @@ img {
     .custom-input {
         background: rgba(255, 255, 255, 0.1);
         color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(171, 210, 250, 0.35);
         border-radius: 12px;
         padding: 12px;
     }
 
     .custom-input::placeholder {
-        color: #9ea4d8;
+        color: var(--icy-blue);
     }
 
     .custom-input:focus {
         background: rgba(255, 255, 255, 0.14);
         color: white;
-        border-color: #00ffcc;
-        box-shadow: 0 0 0 0.2rem rgba(0, 255, 204, 0.2);
+        border-color: var(--cornflower);
+        box-shadow: 0 0 0 0.2rem rgba(118, 146, 255, 0.2);
     }
 
     .login-btn,
@@ -397,8 +428,8 @@ img {
 
     .login-btn {
         margin-top: 10px;
-        background: linear-gradient(135deg, #6c63ff, #00ffcc);
-        color: #070b1a;
+        background: linear-gradient(135deg, var(--cornflower), var(--icy-blue));
+        color: var(--deep-navy);
         border: none;
     }
 
@@ -408,13 +439,13 @@ img {
 
     .signup-btn {
         margin-top: 12px;
-        color: #00ffcc;
-        border: 1px solid #00ffcc;
+        color: var(--icy-blue);
+        border: 1px solid var(--icy-blue);
     }
 
     .signup-btn:hover {
-        background: #00ffcc;
-        color: #070b1a;
+        background: var(--icy-blue);
+        color: var(--deep-navy);
     }
 
     .error-message,
@@ -431,9 +462,9 @@ img {
     }
 
     .success-message {
-        background: rgba(0, 255, 204, 0.15);
-        color: #8fffe9;
-        border: 1px solid rgba(0, 255, 204, 0.35);
+        background: rgba(171, 210, 250, 0.15);
+        color: var(--icy-blue);
+        border: 1px solid rgba(171, 210, 250, 0.35);
     }
 
     @media (max-width: 850px) {
@@ -455,11 +486,13 @@ img {
         }
 
         .go {
-            color: #b71b1b;
+            color: var(--icy-blue);
         }
 
         .game {
-            color: rgb(32, 32, 205);
+            color: var(--cornflower);
         }
     }
+
+    
 }
