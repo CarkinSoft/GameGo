@@ -14,65 +14,75 @@
 
     <main class="container mt-4">
         <section class="card mb-4 p-3">
-            <% if (game.background_image) { %>
-                <img src="<%= game.background_image %>" alt="<%= game.name %>" style="max-width: 350px;">
+            <div class="row">
+                <% if (game.background_image) { %>
+                    <div class="col-md-4 mb-3">
+                        <img src="<%= game.background_image %>" alt="<%= game.name %>" class="img-fluid rounded">
+                    </div>
+                <% } %>
+                <div class="col">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr><th>Released</th><td><%= game.released || "N/A" %></td></tr>
+                            <tr><th>RAWG Rating</th><td><%= game.rating || "N/A" %> / 5 (<%= game.ratings_count || 0 %> ratings)</td></tr>
+                            <% if (game.metacritic) { %><tr><th>Metacritic</th><td><%= game.metacritic %></td></tr><% } %>
+                            <tr><th>Avg. Playtime</th><td><%= game.playtime || "N/A" %> hours</td></tr>
+                            <tr><th>ESRB Rating</th><td><%= game.esrb_rating ? game.esrb_rating.name : "N/A" %></td></tr>
+                            <tr>
+                                <th>Genres</th>
+                                <td>
+                                    <% if (game.genres && game.genres.length > 0) { %>
+                                        <%= game.genres.map(g => g.name).join(", ") %>
+                                    <% } else { %>N/A<% } %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Platforms</th>
+                                <td>
+                                    <% if (game.platforms && game.platforms.length > 0) { %>
+                                        <%= game.platforms.map(p => p.platform.name).join(", ") %>
+                                    <% } else { %>N/A<% } %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Developers</th>
+                                <td>
+                                    <% if (game.developers && game.developers.length > 0) { %>
+                                        <%= game.developers.map(d => d.name).join(", ") %>
+                                    <% } else { %>N/A<% } %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Publishers</th>
+                                <td>
+                                    <% if (game.publishers && game.publishers.length > 0) { %>
+                                        <%= game.publishers.map(p => p.name).join(", ") %>
+                                    <% } else { %>N/A<% } %>
+                                </td>
+                            </tr>
+                            <% if (game.website) { %>
+                                <tr><th>Website</th><td><a href="<%= game.website %>" target="_blank"><%= game.website %></a></td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <% if (game.description_raw) { %>
+                <hr>
+                <p><%= game.description_raw %></p>
             <% } %>
-
-            <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
-            <p><strong>RAWG Rating:</strong> <%= game.rating || "N/A" %></p>
-            <p><strong>Ratings Count:</strong> <%= game.ratings_count || "N/A" %></p>
-            <p><strong>Reviews Count:</strong> <%= game.reviews_count || "N/A" %></p>
-            <p><strong>Metacritic:</strong> <%= game.metacritic || "N/A" %></p>
-            <p><strong>Average Playtime:</strong> <%= game.playtime || "N/A" %> hours</p>
-            <p><strong>ESRB Rating:</strong> <%= game.esrb_rating ? game.esrb_rating.name : "N/A" %></p>
-
-            <p>
-                <strong>Genres:</strong>
-                <% if (game.genres && game.genres.length > 0) { %>
-                    <%= game.genres.map(g => g.name).join(", ") %>
-                <% } else { %>
-                    N/A
-                <% } %>
-            </p>
-
-            <p>
-                <strong>Platforms:</strong>
-                <% if (game.platforms && game.platforms.length > 0) { %>
-                    <%= game.platforms.map(p => p.platform.name).join(", ") %>
-                <% } else { %>
-                    N/A
-                <% } %>
-            </p>
-
-            <p>
-                <strong>Developers:</strong>
-                <% if (game.developers && game.developers.length > 0) { %>
-                    <%= game.developers.map(d => d.name).join(", ") %>
-                <% } else { %>
-                    N/A
-                <% } %>
-            </p>
-
-            <p>
-                <strong>Publishers:</strong>
-                <% if (game.publishers && game.publishers.length > 0) { %>
-                    <%= game.publishers.map(p => p.name).join(", ") %>
-                <% } else { %>
-                    N/A
-                <% } %>
-            </p>
-
-            <p><strong>Website:</strong>
-                <% if (game.website) { %>
-                    <a href="<%= game.website %>" target="_blank"><%= game.website %></a>
-                <% } else { %>
-                    N/A
-                <% } %>
-            </p>
-
-            <p><strong>Description:</strong></p>
-            <p><%= game.description_raw || "No description available." %></p>
         </section>
+
+        <% if (typeof dealInfo !== "undefined" && dealInfo) { %>
+        <section class="card mb-4 p-3">
+            <h3>Current Deal</h3>
+            <p><strong>Sale Price:</strong> $<%= parseFloat(dealInfo.salePrice).toFixed(2) %></p>
+            <p><strong>Normal Price:</strong> <s>$<%= parseFloat(dealInfo.normalPrice).toFixed(2) %></s></p>
+            <p><strong>Discount:</strong> <%= parseFloat(dealInfo.savings).toFixed(0) %>% off</p>
+            <a href="https://www.cheapshark.com/redirect?dealID=<%= dealInfo.dealID %>" target="_blank" class="btn btn-primary">Go to Store Page</a>
+        </section>
+        <% } %>
 
         <section class="card mb-4 p-3">
             <h3>Library Controls</h3>

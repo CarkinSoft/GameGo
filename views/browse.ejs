@@ -14,6 +14,64 @@
 
     <main class="container mt-4">
 
+        <section class="card mb-4 p-3">
+            <h2>Best Deals</h2>
+            <p>These are some of the best deals available right now.</p>
+
+            <div class="browse-carousel-wrapper">
+                <button class="carousel-btn left" data-track="bestDealsTrack">&#10094;</button>
+
+                <div class="browse-track" id="bestDealsTrack">
+                    <% for (let deal of topDeals) { %>
+                        <a href="/gameInfo?gameName=<%= encodeURIComponent(deal.title) %>" class="browse-card-link">
+                            <div class="browse-card">
+                                <h3><%= deal.title %></h3>
+
+                                <% if (deal.thumb) { %>
+                                    <img src="<%= deal.thumb %>" alt="<%= deal.title %>">
+                                <% } %>
+
+                                <p><strong>Sale Price:</strong> $<%= parseFloat(deal.salePrice).toFixed(2) %></p>
+                                <p><strong>Normal Price:</strong> <s>$<%= parseFloat(deal.normalPrice).toFixed(2) %></s></p>
+                                <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(0) %>% off</p>
+                            </div>
+                        </a>
+                    <% } %>
+                </div>
+
+                <button class="carousel-btn right" data-track="bestDealsTrack">&#10095;</button>
+            </div>
+        </section>
+
+        <section class="card mb-4 p-3">
+            <h2>Best Deals</h2>
+            <p>These are some of the best deals available right now.</p>
+
+            <div class="browse-carousel-wrapper">
+                <button class="carousel-btn left" data-track="bestDealsTrack">&#10094;</button>
+
+                <div class="browse-track" id="bestDealsTrack">
+                    <% for (let deal of topDeals) { %>
+                        <a href="/gameInfo?gameName=<%= encodeURIComponent(deal.title) %>" class="browse-card-link">
+                            <div class="browse-card">
+                                <h3><%= deal.title %></h3>
+
+                                <% if (deal.thumb) { %>
+                                    <img src="<%= deal.thumb %>" alt="<%= deal.title %>">
+                                <% } %>
+
+                                <p><strong>Sale Price:</strong> $<%= parseFloat(deal.salePrice).toFixed(2) %></p>
+                                <p><strong>Normal Price:</strong> <s>$<%= parseFloat(deal.normalPrice).toFixed(2) %></s></p>
+                                <p><strong>Discount:</strong> <%= parseFloat(deal.savings).toFixed(0) %>% off</p>
+                            </div>
+                        </a>
+                    <% } %>
+                </div>
+
+                <button class="carousel-btn right" data-track="bestDealsTrack">&#10095;</button>
+            </div>
+        </section>
+
         <section class="browse-section">
             <div class="card browse-panel p-4">
                 <div class="browse-header">
@@ -27,6 +85,26 @@
                             <p>Save some games to your library and recommendations will show up here.</p>
                         <% } %>
                     </div>
+            <h2>Popular Titles</h2>
+            <p>Browse some of the most popular games right now.</p>
+
+            <div class="browse-carousel-wrapper">
+
+                <div class="browse-track" id="popularTrack">
+                    <% for (let game of popularGames) { %>
+                        <a href="/gameInfo?gameId=<%= game.id %>" class="browse-card-link">
+                            <div class="browse-card">
+                                <h3><%= game.name %></h3>
+
+                                <% if (game.background_image) { %>
+                                    <img src="<%= game.background_image %>" alt="<%= game.name %>">
+                                <% } %>
+
+                                <p><strong>Released:</strong> <%= game.released || "N/A" %></p>
+                                <p><strong>Rating:</strong> <%= game.rating || "N/A" %></p>
+                            </div>
+                        </a>
+                    <% } %>
                 </div>
 
                 <% if (recommendedGames.length > 0) { %>
