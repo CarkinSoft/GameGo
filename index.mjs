@@ -498,7 +498,11 @@ app.get('/browse', isUserAuthenticated, async (req, res) => {
         let authenticated = req.session.authenticated;
         let username = req.session.username;
 
-        res.render('browse.ejs', { recommendedGames, topGenre, topDeals, popularGames, topRatedGames, recentGames, authenticated, username });
+<<<<<<<<< Temporary merge branch 1
+        res.render('browse.ejs', { recommendedGames, topGenre, popularGames, topRatedGames, recentGames, authenticated, username });
+=========
+        res.render('browse.ejs', { topDeals, popularGames, topRatedGames, recentGames, recommendedGames, topGenre, authenticated, username });
+>>>>>>>>> Temporary merge branch 2
 
     } catch (err) {
         console.error("Browse page error:", err);
