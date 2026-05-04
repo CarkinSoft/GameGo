@@ -13,19 +13,123 @@
         <%- include("partials/nav.ejs") %>
     </nav>
 
-    <main class="container my-page">
-        <section class="card page-card">
+    <main class="container my-page d-flex gap-4">
+
+        <section class="card page-card flex-fill">
             <h3>Message of the Day: Sup Gamers! Keep on Gaming 🙏💯❤️</h3>
+
             <img 
-                src="https://dukeofdefensegame.com/wp-content/uploads/2021/10/portrait-ecstatic-gamer-guy-headphones-screaming-pc-games-ss-FEATURE.jpg" 
+                src="/img/dealss.jpg" 
                 alt="Cool Gamer Bro"
-                class="img-fluid"
+                class="img-fluid home-logo-img"
             >
         </section>
+
+        <aside class="card p-4" style="width: 600px;">
+            <h3 class="mb-3">Top 3 Games</h3>
+
+            <div id="topGames">
+                <p>Loading games...</p>
+            </div>
+        </aside>
+
     </main>
 
     <footer>
         <%- include("partials/footer.ejs") %>
     </footer>
+
+    <script>
+        async function getCheapSharkDeal(gameName) {
+            try {
+                let url = "https://www.cheapshark.com/api/1.0/deals?title=" + encodeURIComponent(gameName) + "&pageSize=1";
+                let response = await fetch(url);
+                let deals = await response.json();
+
+                if (deals && deals.length > 0) {
+                    return deals[0];
+                }
+
+                return null;
+            } catch (error) {
+                console.error("CheapShark error:", error);
+                return null;
+            }
+        }
+
+        async function loadTopGames() {
+            let topGamesDiv = document.getElementById("topGames");
+
+            try {
+                let rawgUrl = "https://api.rawg.io/api/games?key=ae5a2588f0c9456a914d874aeee6c546&ordering=-rating&page_size=10&dates=2000-01-01,2025-12-31";
+                let response = await fetch(rawgUrl);
+                let data = await response.json();
+
+                let games = data.results
+                    .filter(game => game.released)
+                    .slice(0, 3);
+
+                topGamesDiv.innerHTML = "";
+
+                if (!games || games.length === 0) {
+                    topGamesDiv.innerHTML = "<p style='color:red;'>No games loaded.</p>";
+                    return;
+                }
+
+                for (let game of games) {
+                    let deal = await getCheapSharkDeal(game.name);
+
+                    let dealInfo = "";
+
+                    if (deal) {
+                        dealInfo = `
+                            <p><strong>Normal Price:</strong> $${parseFloat(deal.normalPrice).toFixed(2)}</p>
+                            <p><strong>Sale Price:</strong> $${parseFloat(deal.salePrice).toFixed(2)}</p>
+                            <p><strong>Discount:</strong> ${parseFloat(deal.savings).toFixed(2)}%</p>
+                            <p><strong>Steam Rating:</strong> ${deal.steamRatingText || "N/A"}</p>
+                            <p><strong>Steam Rating %:</strong> ${deal.steamRatingPercent || "N/A"}%</p>
+                            <p><strong>Steam Reviews:</strong> ${deal.steamRatingCount || "N/A"}</p>
+
+                            <a 
+                                href="https://www.cheapshark.com/redirect?dealID=${deal.dealID}" 
+                                target="_blank" 
+                                class="btn btn-success btn-sm me-2"
+                            >
+                                View Deal
+                            </a>
+                        `;
+                    } else {
+                        dealInfo = `<p><strong>CheapShark Deal:</strong> Not available</p>`;
+                    }
+
+                    topGamesDiv.innerHTML += `
+                        <div class="mb-4 border-bottom pb-3">
+                            <h5>${game.name}</h5>
+
+                            ${game.background_image ? `<img src="${game.background_image}" alt="${game.name}" class="img-fluid mb-2">` : ""}
+
+                            <p><strong>RAWG Rating:</strong> ${game.rating}</p>
+
+                            ${dealInfo}
+
+                            <a 
+                                href="/gameInfo?gameId=${game.id}" 
+                                class="btn btn-primary btn-sm"
+                            >
+                                View Game
+                            </a>
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error("Error loading games:", error);
+                topGamesDiv.innerHTML = "<p style='color:red;'>Could not load games.</p>";
+            }
+        }
+
+        loadTopGames();
+    </script>
+
 </body>
 </html>
