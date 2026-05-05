@@ -13,7 +13,7 @@ app.use(session({
     secret: "superSecretGameGoKey",
     resave: false,
     saveUninitialized: true,
-    // cookie: { secure: true }
+    cookie: { secure: true }
 }));
 
 const pool = mysql.createPool({
