@@ -238,6 +238,13 @@ app.get('/home', isUserAuthenticated, (req, res) => {
     res.render('home.ejs', { authenticated, username });
 });
 
+// About page
+app.get('/about', isUserAuthenticated, (req, res) => {
+    let authenticated = req.session.authenticated;
+    let username = req.session.username;
+    res.render('about.ejs', { authenticated, username });
+});
+
 // Database test
 app.get('/dbTest', async (req, res) => {
     try {

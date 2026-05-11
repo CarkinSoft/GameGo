@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("partials/head.ejs") %>
+</head>
+<body>
+    <header>
+        <h1>About GameGo</h1>
+    </header>
+
+    <nav>
+        <%- include("partials/nav.ejs") %>
+    </nav>
+
+    <main class="container mt-4">
+        <section class="card page-card mx-auto p-4" style="max-width: 850px;">
+            <h2 class="mb-3">Meet the Team</h2>
+
+            <p>
+                GameGo was created by:
+            </p>
+
+            <ul class="list-group mb-4">
+                <li class="list-group-item">Carson Cardoza</li>
+                <li class="list-group-item">Jacob Banducci</li>
+                <li class="list-group-item">Carlos Cupa</li>
+                <li class="list-group-item">Luis Cortes-Cedillo</li>
+            </ul>
+
+            <h3>Carson Cardoza</h3>
+            <p>
+                Connect with Carson here:
+            </p>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a 
+                    class="btn btn-primary" 
+                    href="https://github.com/CarkinSoft" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                >
+                    GitHub
+                </a>
+
+                <a 
+                    class="btn btn-info" 
+                    href="https://www.linkedin.com/in/carson-cardoza/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                >
+                    LinkedIn
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <%- include("partials/footer.ejs") %>
+    </footer>
+</body>
+</html>
